@@ -40,11 +40,15 @@ KEMS = {
     "mlkem1024": "from pqcrypt.kem.mlkem1024 import generate_keypair, encrypt, decrypt",
     # "dhkem": "from pqcrypt.kem.dhkem import generate_keypair, encrypt, decrypt",
     "xwing": "from pqcrypt.kem.xwing import generate_keypair, encrypt, decrypt",
+    "sntryp761": "from pqcrypt.kem.sntryp761 import generate_keypair, encrypt, decrypt",
 }
 
 @pytest.mark.parametrize("kem", KEMS.keys())
 def test_kem_algorithm(kem):
-    exec(KEMS[kem], globals())
+    try:
+        exec(KEMS[kem], globals())
+    except KeyError:
+        raise SystemError(f"Unknown kem {kem}")
 
     # Alice generates a (public, secret) key pair
     public_key, secret_key = generate_keypair()

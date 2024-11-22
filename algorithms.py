@@ -67,6 +67,17 @@ MLKEM1024_HEADER = '''
 #define CRYPTO_SECRETKEYBYTES PQCLEAN_MLKEM1024_CLEAN_CRYPTO_SECRETKEYBYTES
 '''
 
+SNTRUP761_HEADER='''
+#define crypto_kem_keypair PQCLEAN_SNTRUP761_CLEAN_crypto_kem_keypair
+#define crypto_kem_enc PQCLEAN_SNTRUP761_CLEAN_crypto_kem_enc
+#define crypto_kem_dec PQCLEAN_SNTRUP761_CLEAN_crypto_kem_dec
+
+#define CRYPTO_SECRETKEYBYTES PQCLEAN_SNTRUP761_CLEAN_CRYPTO_SECRETKEYBYTES
+#define CRYPTO_PUBLICKEYBYTES PQCLEAN_SNTRUP761_CLEAN_CRYPTO_PUBLICKEYBYTES
+#define CRYPTO_CIPHERTEXTBYTES PQCLEAN_SNTRUP761_CLEAN_CRYPTO_CIPHERTEXTBYTES
+#define CRYPTO_BYTES PQCLEAN_SNTRUP761_CLEAN_CRYPTO_BYTES
+'''
+
 XWING_HEADER = '''
 #define crypto_kem_keypair xwing_ref_keypair
 #define crypto_kem_enc xwing_ref_enc
@@ -146,6 +157,8 @@ ALGORITHMS = {
     "mlkem1024": AlgorithmConfig(path = "mlkem1024",
                               extra_header = MLKEM1024_HEADER
                               ),
+    "sntryp761": AlgorithmConfig(path="sntryp761",
+                        extra_header=SNTRUP761_HEADER),
     "xwing": AlgorithmConfig(path = "xwing",
                             is_common=False,
                             extra_sources = ["mlkem/ref"],
