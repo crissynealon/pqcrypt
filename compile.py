@@ -68,16 +68,17 @@ def create_algorithm_ffi(name, algorithm):
         raise SystemExit("Windows have not supported now!")
 
     elif IS_LINUX:
+        # the GCC compiler arguments are from PQClean
         # CFLAGS=-O3 -Wall -Wextra -Wpedantic -Wshadow -Wvla -Werror -Wredundant-decls -Wmissing-prototypes -std=c99
         compiler_args +=["-O3",
                         "-std=c99",
                         "-Wall",
                         "-Wextra",
-                        "-Wno-pedantic",
+                        "-Wpedantic",
                         "-Wvla",
                         "-Wredundant-decls",
                         "-Wmissing-prototypes",
-                        "-Wno-unused-result"]
+                        "-Wunused-result"]
     elif IS_MACOS:
         raise SystemExit("MacOS have not implemented yet!")
     else:
@@ -133,9 +134,9 @@ def create_algorithm_ffi(name, algorithm):
     if hasattr(algorithm, "extra_libraries") and algorithm.extra_libraries:
         libraries = list(set(libraries).union(algorithm.extra_libraries))
 
-    print("include_dirs", include_dirs)
-    print(header)
-    print(sources)
+    # print("include_dirs", include_dirs)
+    # print(header)
+    # print(sources)
 
     # HACKME: Only support POSIX pure C implementation
     ffi.set_source(
@@ -157,7 +158,10 @@ if __name__ == "__main__":
         for name, algo in ALGORITHMS.items():
             algorithm_ffi = create_algorithm_ffi(name, algo)
             globals()[f"{name}_ffi"] = algorithm_ffi
-            globals()[f"{name}_ffi"].compile(verbose=True)
+            try:
+                globals()[f"{name}_ffi"].compile(verbose=True)
+            except Exception as e:
+                print(f"Compilation {name} error: {str(e)}")
     elif len(sys.argv) == 2:
         name = sys.argv[1]
         try:
@@ -166,7 +170,10 @@ if __name__ == "__main__":
             raise SystemError(f"Unknow algorithm {name}")
         algorithm_ffi = create_algorithm_ffi(name, algo)
         globals()[f"{name}_ffi"] = algorithm_ffi
-        globals()[f"{name}_ffi"].compile(verbose=True, debug=True)
+        try:
+            globals()[f"{name}_ffi"].compile(verbose=True, debug=True)
+        except Exception as e:
+            print(f"Compilation {name} error: {str(e)}")
     else:
         print("Usage: python compile.py [xwing]")
         print("Support algorithms:")
