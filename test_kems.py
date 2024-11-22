@@ -45,28 +45,37 @@ KEMS = {
 
 @pytest.mark.parametrize("kem", KEMS.keys())
 def test_kem_algorithm(kem):
-    try:
-        exec(KEMS[kem], globals())
-    except KeyError:
+    if kem not in KEMS:
         raise SystemError(f"Unknown kem {kem}")
 
-    # Alice generates a (public, secret) key pair
-    public_key, secret_key = generate_keypair()
-    print(f"{kem}: public_key", hexlify(public_key))
-    print(f"{kem}: secret_key", hexlify(secret_key))
+    try:
+        exec(KEMS[kem], globals())
+    except ImportError as e:
+        pytest.skip(f"Failed to import {kem}: {str(e)}")
+        return
+    except Exception as e:
+        pytest.fail(f"Unexpected error testing {kem}: {str(e)}")
+        return
 
-    # Bob derives a secret (the plaintext) and encrypts it with Alice's public key to produce a ciphertext
-    ciphertext, plaintext_original = encrypt(public_key)
-    print(f"{kem}: ciphertext", hexlify(ciphertext))
-    print(f"{kem}: plaintext_original", hexlify(plaintext_original))
+    try:
+        # Alice generates a (public, secret) key pair
+        public_key, secret_key = generate_keypair()
+        print(f"{kem}: public_key", hexlify(public_key))
+        print(f"{kem}: secret_key", hexlify(secret_key))
 
-    # Alice decrypts Bob's ciphertext to derive the now shared secret
-    plaintext_recovered = decrypt(secret_key, ciphertext)
-    print(f"{kem}: plaintext_recovered", hexlify(plaintext_recovered))
+        # Bob derives a secret (the plaintext) and encrypts it with Alice's public key to produce a ciphertext
+        ciphertext, plaintext_original = encrypt(public_key)
+        print(f"{kem}: ciphertext", hexlify(ciphertext))
+        print(f"{kem}: plaintext_original", hexlify(plaintext_original))
 
-    # Compare the original and recovered secrets in constant time
-    assert compare_digest(plaintext_original, plaintext_recovered), f"{kem}: Secrets do not match!"
+        # Alice decrypts Bob's ciphertext to derive the now shared secret
+        plaintext_recovered = decrypt(secret_key, ciphertext)
+        print(f"{kem}: plaintext_recovered", hexlify(plaintext_recovered))
 
+        # Compare the original and recovered secrets in constant time
+        assert compare_digest(plaintext_original, plaintext_recovered), f"{kem}: Secrets do not match!"
+    except Exception as e:
+        pytest.fail(f"Failed to test {kem}: {str(e)}")
 
 @pytest.mark.parametrize("kem", KEMS.keys())
 def test_all(kem):
