@@ -81,18 +81,19 @@ XWING_HEADER = '''
 @dataclass
 class AlgorithmConfig:
     """_summary_
-    attribues:
-        path (str)
-        is_kem (bool)
-        extra_header (Optional[str])
-        extra_sources (Optional[List[str]])
-        extra_include_dirs (Optional[List[str]])
-        extra_compiler_args (Optional[List[str]])
-        extra_link_args (Optional[List[str]])
-        extra_libraries (Optional[List[str]])
+    path (str)
+    is_kem (bool)
+    is_common (bool)
+    extra_header (Optional[str])
+    extra_sources (Optional[List[str]])
+    extra_include_dirs (Optional[List[str]])
+    extra_compiler_args (Optional[List[str]])
+    extra_link_args (Optional[List[str]])
+    extra_libraries (Optional[List[str]])
     """
     path: str
-    is_kem: bool
+    is_kem: bool = True
+    is_common: bool = True
     extra_header: Optional[str] = None
     extra_sources: List[str] = field(default_factory=list)
     extra_include_dirs: List[str] = field(default_factory=list)
@@ -103,53 +104,53 @@ class AlgorithmConfig:
 SUPPORT_ALGORITHMS = []
 
 ALGORITHMS = {
-    "firesaber": AlgorithmConfig(path = "firesaber", is_kem = True),
-    "frodokem1344aes": AlgorithmConfig(path = "frodokem1344aes", is_kem = True),
-    "frodokem1344shake": AlgorithmConfig(path = "frodokem1344shake", is_kem = True),
-    "frodokem640aes": AlgorithmConfig(path = "frodokem640aes", is_kem = True),
-    "frodokem640shake": AlgorithmConfig(path = "frodokem640shake", is_kem = True),
-    "frodokem976aes": AlgorithmConfig(path = "frodokem976aes", is_kem = True),
-    "frodokem976shake": AlgorithmConfig(path = "frodokem976shake", is_kem = True),
-    "kyber1024": AlgorithmConfig(path = "kyber1024", is_kem = True),
-    "kyber1024_90s": AlgorithmConfig(path = "kyber1024-90s", is_kem = True),
-    "kyber512": AlgorithmConfig(path = "kyber512", is_kem = True),
-    "kyber512_90s": AlgorithmConfig(path = "kyber512-90s", is_kem = True),
-    "kyber768": AlgorithmConfig(path = "kyber768", is_kem = True),
-    "kyber768_90s": AlgorithmConfig(path = "kyber768-90s", is_kem = True),
-    "lightsaber": AlgorithmConfig(path = "lightsaber", is_kem = True),
-    "mceliece348864": AlgorithmConfig(path = "mceliece348864", is_kem = True),
-    "mceliece348864f": AlgorithmConfig(path = "mceliece348864f", is_kem = True),
-    "mceliece460896": AlgorithmConfig(path = "mceliece460896", is_kem = True),
-    "mceliece460896f": AlgorithmConfig(path = "mceliece460896f", is_kem = True),
-    "mceliece6688128": AlgorithmConfig(path = "mceliece6688128", is_kem = True),
-    "mceliece6688128f": AlgorithmConfig(path = "mceliece6688128f", is_kem = True),
-    "mceliece6960119": AlgorithmConfig(path = "mceliece6960119", is_kem = True),
-    "mceliece6960119f": AlgorithmConfig(path = "mceliece6960119f", is_kem = True),
-    "mceliece8192128": AlgorithmConfig(path = "mceliece8192128", is_kem = True),
-    "mceliece8192128f": AlgorithmConfig(path = "mceliece8192128f", is_kem = True),
-    "ntruhps2048509": AlgorithmConfig(path = "ntruhps2048509", is_kem = True),
-    "ntruhps2048677": AlgorithmConfig(path = "ntruhps2048677", is_kem = True),
-    "ntruhps4096821": AlgorithmConfig(path = "ntruhps4096821", is_kem = True),
-    "ntruhrss701": AlgorithmConfig(path = "ntruhrss701", is_kem = True),
-    "saber": AlgorithmConfig(path = "saber", is_kem = True),
-    "hqc128": AlgorithmConfig(path = "hqc128", is_kem = True,
+    "firesaber": AlgorithmConfig(path = "firesaber"),
+    "frodokem1344aes": AlgorithmConfig(path = "frodokem1344aes"),
+    "frodokem1344shake": AlgorithmConfig(path = "frodokem1344shake"),
+    "frodokem640aes": AlgorithmConfig(path = "frodokem640aes"),
+    "frodokem640shake": AlgorithmConfig(path = "frodokem640shake"),
+    "frodokem976aes": AlgorithmConfig(path = "frodokem976aes"),
+    "frodokem976shake": AlgorithmConfig(path = "frodokem976shake"),
+    "kyber1024": AlgorithmConfig(path = "kyber1024"),
+    "kyber1024_90s": AlgorithmConfig(path = "kyber1024-90s"),
+    "kyber512": AlgorithmConfig(path = "kyber512"),
+    "kyber512_90s": AlgorithmConfig(path = "kyber512-90s"),
+    "kyber768": AlgorithmConfig(path = "kyber768"),
+    "kyber768_90s": AlgorithmConfig(path = "kyber768-90s"),
+    "lightsaber": AlgorithmConfig(path = "lightsaber"),
+    "mceliece348864": AlgorithmConfig(path = "mceliece348864"),
+    "mceliece348864f": AlgorithmConfig(path = "mceliece348864f"),
+    "mceliece460896": AlgorithmConfig(path = "mceliece460896"),
+    "mceliece460896f": AlgorithmConfig(path = "mceliece460896f"),
+    "mceliece6688128": AlgorithmConfig(path = "mceliece6688128"),
+    "mceliece6688128f": AlgorithmConfig(path = "mceliece6688128f"),
+    "mceliece6960119": AlgorithmConfig(path = "mceliece6960119"),
+    "mceliece6960119f": AlgorithmConfig(path = "mceliece6960119f"),
+    "mceliece8192128": AlgorithmConfig(path = "mceliece8192128"),
+    "mceliece8192128f": AlgorithmConfig(path = "mceliece8192128f"),
+    "ntruhps2048509": AlgorithmConfig(path = "ntruhps2048509"),
+    "ntruhps2048677": AlgorithmConfig(path = "ntruhps2048677"),
+    "ntruhps4096821": AlgorithmConfig(path = "ntruhps4096821"),
+    "ntruhrss701": AlgorithmConfig(path = "ntruhrss701"),
+    "saber": AlgorithmConfig(path = "saber"),
+    "hqc128": AlgorithmConfig(path = "hqc128",
                             extra_header = HQC128_HEADER),
-    "hqc192": AlgorithmConfig(path = "hqc192", is_kem = True,
+    "hqc192": AlgorithmConfig(path = "hqc192",
                             extra_header = HQC192_HEADER),
-    "hqc256": AlgorithmConfig(path = "hqc256", is_kem = True,
+    "hqc256": AlgorithmConfig(path = "hqc256",
                             extra_header = HQC256_HEADER),
-    "mlkem512": AlgorithmConfig(path = "mlkem512", is_kem = True,
+    "mlkem512": AlgorithmConfig(path = "mlkem512",
                              extra_header = MLKEM512_HEADER),
-    "mlkem768": AlgorithmConfig(path = "mlkem768", is_kem = True,
+    "mlkem768": AlgorithmConfig(path = "mlkem768",
                              extra_header = MLKEM768_HEADER),
-    "mlkem1024": AlgorithmConfig(path = "mlkem1024", is_kem = True,
+    "mlkem1024": AlgorithmConfig(path = "mlkem1024",
                               extra_header = MLKEM1024_HEADER
                               ),
     "xwing": AlgorithmConfig(path = "xwing",
-                           is_kem =True,
-                           extra_sources = ["mlkem/ref"],
-                           extra_header = XWING_HEADER,
-                           extra_include_dirs = ["mlkem"],
-                           extra_library = ["25519"]
+                            is_common=False,
+                            extra_sources = ["mlkem/ref"],
+                            extra_header = XWING_HEADER,
+                            extra_include_dirs = ["mlkem"],
+                            extra_libraries = ["25519"]
                            ),
 }

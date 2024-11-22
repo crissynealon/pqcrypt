@@ -9,7 +9,7 @@ from algorithms import AlgorithmConfig, ALGORITHMS, SUPPORT_ALGORITHMS
 import ipdb
 import IPython
 
-PATH_ROOT = Path(__file__).parent
+PATH_ROOT = os.path.dirname(os.path.abspath(__file__))
 PATH_SOURCES = os.path.join(PATH_ROOT, "algos")
 PATH_COMMON = os.path.join(PATH_SOURCES,"common")
 
@@ -53,8 +53,8 @@ def create_algorithm_ffi(name, algorithm):
 
     if hasattr(algorithm, "path") and algorithm.path:
         algorithm_path = os.path.join(PATH_SOURCES, algorithm.path)
-        if not os.path.isdir:
-            raise SystemError("Algorithm source path is wrong")
+        if not os.path.isdir(algorithm_path):
+            raise SystemError("Algorithm source folder is wrong")
     else:
         raise SystemError("Algorithm source path must be set")
 
@@ -78,8 +78,6 @@ def create_algorithm_ffi(name, algorithm):
                         "-Wredundant-decls",
                         "-Wmissing-prototypes",
                         "-Wno-unused-result"]
-        # add common include headers
-        # include_dirs.append(str(PATH_COMMON))
     elif IS_MACOS:
         raise SystemExit("MacOS have not implemented yet!")
     else:
@@ -93,27 +91,38 @@ def create_algorithm_ffi(name, algorithm):
     ffi = FFI()
     ffi.cdef(BASIC_DEFINITIONS_KEM)
 
-    # ipdb.set_trace()
-    src_files = [str(file) for file in Path(src).glob("*.c") if file.is_file()]
-    # common_files = [str(file) for file in Path(PATH_COMMON).glob("*.c") if file.is_file()]
-
     header = ""
     if hasattr(algorithm, "extra_header") and algorithm.extra_header:
-        header = f'#include "{str(api)}"' + algorithm.extra_header
+        header = f'#include "{api}"' + algorithm.extra_header
     else:
-        header = f'#include "{str(api)}"'
+        header = f'#include "{api}"'
 
-    # import ipdb; ipdb.set_trace();
-    sources = [str(file) for file in src_files]
+    header += f"""
+    PyMODINIT_FUNC PyInit_{name}(void);
+    """
+
+    # FIXME: Do not use absolute path
+    src_files = [os.path.relpath(str(file), os.getcwd()) for file in Path(src).glob("*.c") if file.is_file()]
+    common_files = [os.path.relpath(str(file), os.getcwd()) for file in Path(PATH_COMMON).glob("*.c") if file.is_file()]
+    if hasattr(algorithm, "is_common") and algorithm.is_common:
+        sources = [str(file) for file in (*common_files, *src_files)]
+    else:
+        sources = [str(file) for file in src_files]
+
     if hasattr(algorithm, "extra_sources") and algorithm.extra_sources:
-        extra_sources = [os.path.join(src,dir) for dir in algorithm.extra_sources]
-        for dir in extra_sources:
-           sources.extend([str(file) for file in Path(dir).glob("*.c") if file.is_file()])
+        extra_sources = [os.path.join(src,d) for d in algorithm.extra_sources]
+        for d in extra_sources:
+           sources.extend([os.path.relpath(str(file), os.getcwd()) for file in Path(d).glob("*.c") if file.is_file()])
 
+    # include_dirs = ["/usr/include"]
     if hasattr(algorithm, "extra_include_dirs") and algorithm.extra_include_dirs:
         include_dirs = list(set(include_dirs).union(algorithm.extra_include_dirs))
-        include_dirs = [os.path.join(src,dir) for dir in include_dirs]
+        include_dirs = [os.path.join(src,d) for d in include_dirs]
+        # FIXME: need some others libraries, e.g. lib25519, lib
         include_dirs.append("/usr/include")
+
+    if hasattr(algorithm, "is_common") and algorithm.is_common:
+        include_dirs.append(PATH_COMMON)
 
     if hasattr(algorithm, "extra_compile_args") and algorithm.extra_compile_args:
         compiler_args = list(set(compiler_args).union(algorithm.extra_compile_args))
@@ -124,9 +133,11 @@ def create_algorithm_ffi(name, algorithm):
     if hasattr(algorithm, "extra_libraries") and algorithm.extra_libraries:
         libraries = list(set(libraries).union(algorithm.extra_libraries))
 
-    # Only support POSIX pure C implementation
     print("include_dirs", include_dirs)
     print(header)
+    print(sources)
+
+    # HACKME: Only support POSIX pure C implementation
     ffi.set_source(
         f"pqcrypt._kem.{name}",
         header,
@@ -135,7 +146,7 @@ def create_algorithm_ffi(name, algorithm):
         extra_compile_args=compiler_args,
         extra_link_args=link_args,
         libraries=libraries,
-        library_dirs=["/usr/lib"],
+        library_dirs=["/usr/lib", "/usr/local/lib"],
         source_extension='.c'
     )
 
@@ -155,8 +166,9 @@ if __name__ == "__main__":
             raise SystemError(f"Unknow algorithm {name}")
         algorithm_ffi = create_algorithm_ffi(name, algo)
         globals()[f"{name}_ffi"] = algorithm_ffi
-        globals()[f"{name}_ffi"].compile(verbose=True)
+        globals()[f"{name}_ffi"].compile(verbose=True, debug=True)
     else:
-        print("Usage: python compile [xwing]")
+        print("Usage: python compile.py [xwing]")
         print("Support algorithms:")
         print(SUPPORT_ALGORITHMS)
+        exit(-1)
