@@ -2,9 +2,9 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 HQC128_HEADER = '''
-#define crypto_kem_keypair PQCLEAN_HQC128_CLEAN_crypto_kem_keypair
-#define crypto_kem_enc PQCLEAN_HQC128_CLEAN_crypto_kem_enc
-#define crypto_kem_dec PQCLEAN_HQC128_CLEAN_crypto_kem_dec
+#define cffi_crypto_keygen PQCLEAN_HQC128_CLEAN_crypto_kem_keypair
+#define cffi_crypto_kem_encaps PQCLEAN_HQC128_CLEAN_crypto_kem_enc
+#define cffi_crypto_kem_decaps PQCLEAN_HQC128_CLEAN_crypto_kem_dec
 
 #define CRYPTO_BYTES PQCLEAN_HQC128_CLEAN_CRYPTO_BYTES
 #define CRYPTO_CIPHERTEXTBYTES PQCLEAN_HQC128_CLEAN_CRYPTO_CIPHERTEXTBYTES
@@ -13,9 +13,9 @@ HQC128_HEADER = '''
 '''
 
 HQC192_HEADER = '''
-#define crypto_kem_keypair PQCLEAN_HQC192_CLEAN_crypto_kem_keypair
-#define crypto_kem_enc PQCLEAN_HQC192_CLEAN_crypto_kem_enc
-#define crypto_kem_dec PQCLEAN_HQC192_CLEAN_crypto_kem_dec
+#define cffi_crypto_keygen PQCLEAN_HQC192_CLEAN_crypto_keygen
+#define cffi_crypto_kem_encaps PQCLEAN_HQC192_CLEAN_crypto_kem_encaps
+#define cffi_crypto_kem_decaps PQCLEAN_HQC192_CLEAN_crypto_kem_decaps
 
 #define CRYPTO_BYTES PQCLEAN_HQC192_CLEAN_CRYPTO_BYTES
 #define CRYPTO_CIPHERTEXTBYTES PQCLEAN_HQC192_CLEAN_CRYPTO_CIPHERTEXTBYTES
@@ -24,9 +24,9 @@ HQC192_HEADER = '''
 '''
 
 HQC256_HEADER = '''
-#define crypto_kem_keypair PQCLEAN_HQC256_CLEAN_crypto_kem_keypair
-#define crypto_kem_enc PQCLEAN_HQC256_CLEAN_crypto_kem_enc
-#define crypto_kem_dec PQCLEAN_HQC256_CLEAN_crypto_kem_dec
+#define cffi_crypto_keygen PQCLEAN_HQC256_CLEAN_cffi_crypto_keygen
+#define cffi_crypto_kem_encaps PQCLEAN_HQC256_CLEAN_cffi_crypto_kem_encaps
+#define cffi_crypto_kem_decaps PQCLEAN_HQC256_CLEAN_cffi_crypto_kem_decaps
 
 #define CRYPTO_BYTES PQCLEAN_HQC256_CLEAN_CRYPTO_BYTES
 #define CRYPTO_CIPHERTEXTBYTES PQCLEAN_HQC256_CLEAN_CRYPTO_CIPHERTEXTBYTES
@@ -35,9 +35,9 @@ HQC256_HEADER = '''
 '''
 
 MLKEM512_HEADER = '''
-#define crypto_kem_keypair PQCLEAN_MLKEM512_CLEAN_crypto_kem_keypair
-#define crypto_kem_enc PQCLEAN_MLKEM512_CLEAN_crypto_kem_enc
-#define crypto_kem_dec PQCLEAN_MLKEM512_CLEAN_crypto_kem_dec
+#define cffi_crypto_keygen PQCLEAN_MLKEM512_CLEAN_cffi_crypto_keygen
+#define cffi_crypto_kem_encaps PQCLEAN_MLKEM512_CLEAN_cffi_crypto_kem_encaps
+#define cffi_crypto_kem_decaps PQCLEAN_MLKEM512_CLEAN_cffi_crypto_kem_decaps
 
 #define CRYPTO_BYTES PQCLEAN_MLKEM512_CLEAN_CRYPTO_BYTES
 #define CRYPTO_CIPHERTEXTBYTES PQCLEAN_MLKEM512_CLEAN_CRYPTO_CIPHERTEXTBYTES
@@ -46,9 +46,9 @@ MLKEM512_HEADER = '''
 '''
 
 MLKEM768_HEADER = '''
-#define crypto_kem_keypair PQCLEAN_MLKEM768_CLEAN_crypto_kem_keypair
-#define crypto_kem_enc PQCLEAN_MLKEM768_CLEAN_crypto_kem_enc
-#define crypto_kem_dec PQCLEAN_MLKEM768_CLEAN_crypto_kem_dec
+#define cffi_crypto_keygen PQCLEAN_MLKEM768_CLEAN_cffi_crypto_keygen
+#define cffi_crypto_kem_encaps PQCLEAN_MLKEM768_CLEAN_cffi_crypto_kem_encaps
+#define cffi_crypto_kem_decaps PQCLEAN_MLKEM768_CLEAN_cffi_crypto_kem_decaps
 
 #define CRYPTO_BYTES PQCLEAN_MLKEM768_CLEAN_CRYPTO_BYTES
 #define CRYPTO_CIPHERTEXTBYTES PQCLEAN_MLKEM768_CLEAN_CRYPTO_CIPHERTEXTBYTES
@@ -57,9 +57,9 @@ MLKEM768_HEADER = '''
 '''
 
 MLKEM1024_HEADER = '''
-#define crypto_kem_keypair PQCLEAN_MLKEM1024_CLEAN_crypto_kem_keypair
-#define crypto_kem_enc PQCLEAN_MLKEM1024_CLEAN_crypto_kem_enc
-#define crypto_kem_dec PQCLEAN_MLKEM1024_CLEAN_crypto_kem_dec
+#define cffi_crypto_keygen PQCLEAN_MLKEM1024_CLEAN_cffi_crypto_keygen
+#define cffi_crypto_kem_encaps PQCLEAN_MLKEM1024_CLEAN_cffi_crypto_kem_encaps
+#define cffi_crypto_kem_decaps PQCLEAN_MLKEM1024_CLEAN_cffi_crypto_kem_decaps
 
 #define CRYPTO_BYTES PQCLEAN_MLKEM1024_CLEAN_CRYPTO_BYTES
 #define CRYPTO_CIPHERTEXTBYTES PQCLEAN_MLKEM1024_CLEAN_CRYPTO_CIPHERTEXTBYTES
@@ -68,9 +68,9 @@ MLKEM1024_HEADER = '''
 '''
 
 SNTRUP761_HEADER='''
-#define crypto_kem_keypair PQCLEAN_SNTRUP761_CLEAN_crypto_kem_keypair
-#define crypto_kem_enc PQCLEAN_SNTRUP761_CLEAN_crypto_kem_enc
-#define crypto_kem_dec PQCLEAN_SNTRUP761_CLEAN_crypto_kem_dec
+#define cffi_crypto_keygen PQCLEAN_SNTRUP761_CLEAN_cffi_crypto_keygen
+#define cffi_crypto_kem_encaps PQCLEAN_SNTRUP761_CLEAN_cffi_crypto_kem_encaps
+#define cffi_crypto_kem_decaps PQCLEAN_SNTRUP761_CLEAN_cffi_crypto_kem_decaps
 
 #define CRYPTO_SECRETKEYBYTES PQCLEAN_SNTRUP761_CLEAN_CRYPTO_SECRETKEYBYTES
 #define CRYPTO_PUBLICKEYBYTES PQCLEAN_SNTRUP761_CLEAN_CRYPTO_PUBLICKEYBYTES
@@ -79,9 +79,9 @@ SNTRUP761_HEADER='''
 '''
 
 XWING_HEADER = '''
-#define crypto_kem_keypair xwing_ref_keypair
-#define crypto_kem_enc xwing_ref_enc
-#define crypto_kem_dec xwing_ref_dec
+#define cffi_crypto_keygen xwing_ref_keypair
+#define cffi_crypto_kem_encaps xwing_ref_enc
+#define cffi_crypto_kem_decaps xwing_ref_dec
 
 #define CRYPTO_BYTES xwing_BYTES
 #define CRYPTO_CIPHERTEXTBYTES xwing_CIPHERTEXTBYTES
@@ -90,9 +90,9 @@ XWING_HEADER = '''
 '''
 
 TM_HEADER = '''
-#define crypto_kem_keypair xwing_ref_keypair
-#define crypto_kem_enc xwing_ref_enc
-#define crypto_kem_dec xwing_ref_dec
+#define cffi_crypto_keygen xwing_ref_keypair
+#define cffi_crypto_kem_encaps xwing_ref_enc
+#define cffi_crypto_kem_decaps xwing_ref_dec
 
 #define CRYPTO_BYTES xwing_BYTES
 #define CRYPTO_CIPHERTEXTBYTES xwing_CIPHERTEXTBYTES

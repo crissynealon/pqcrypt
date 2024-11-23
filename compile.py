@@ -15,33 +15,26 @@ PATH_COMMON = os.path.join(PATH_SOURCES,"common")
 
 IS_WINDOWS, IS_LINUX, IS_MACOS = (lambda s: (s == "Windows", s == "Linux", s == "Darwin"))(platform.system())
 
-BASIC_DEFINITIONS_KEM = """
-    int crypto_kem_keypair(uint8_t *pk, uint8_t *sk);
-    int crypto_kem_enc(uint8_t *c, uint8_t *key, const uint8_t *pk);
-    int crypto_kem_dec(uint8_t *key, const uint8_t *c, const uint8_t *sk);
-
-    #define CRYPTO_PUBLICKEYBYTES ...
-    #define CRYPTO_SECRETKEYBYTES ...
-    #define CRYPTO_CIPHERTEXTBYTES ...
-    #define CRYPTO_BYTES ...
-"""
-
 # different kem xwing from https://github.com/X-Wing-KEM-Team/xwing add derand
-EXTRA_DEFINITIONS_KEM = """
-    int crypto_keypair(uint8_t *pk, uint8_t *sk);
-    int crypto_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk);
-    int crypto_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk);
-    int crypto_keypair_derand(uint8_t *pk, uint8_t *sk, const uint8_t *coins);
-    int crypto_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk, const uint8_t *coins);
+DEFINITIONS = """
+    int cffi_crypto_keygen(uint8_t *pk, uint8_t *sk);
+    int cffi_crypto_encrypt(uint8_t *ct, uint8_t *ss, const uint8_t *pk);
+    int cffi_crypto_decrypt(uint8_t *ss, const uint8_t *ct, const uint8_t *sk);
+"""
+
+DEFINITIONS_KEM = """
+    int cffi_crypto_keygen(uint8_t *pk, uint8_t *sk);
+    int cffi_crypto_kem_encaps(uint8_t *c, uint8_t *key, const uint8_t *pk);
+    int cffi_crypto_kem_decaps(uint8_t *key, const uint8_t *c, const uint8_t *sk);
 
     #define CRYPTO_PUBLICKEYBYTES ...
     #define CRYPTO_SECRETKEYBYTES ...
     #define CRYPTO_CIPHERTEXTBYTES ...
     #define CRYPTO_BYTES ...
-    #define CRYPTO_KEYPAIRCOINBYTES ...
-    #define CRYPTO_ENCCOINBYTES ...
 """
 
+DEFINITIONS_OTHERS = """
+"""
 
 def create_algorithm_ffi(name, algorithm):
     """
@@ -90,13 +83,14 @@ def create_algorithm_ffi(name, algorithm):
     api = os.path.join(src , "api.h")
 
     ffi = FFI()
-    ffi.cdef(BASIC_DEFINITIONS_KEM)
+    # ffi.cdef(DEFINITIONS_KEM)
 
     header = ""
     if hasattr(algorithm, "extra_header") and algorithm.extra_header:
         header = f'#include "{api}"' + algorithm.extra_header
-    else:
-        header = f'#include "{api}"'
+        # header = algorithm.extra_header
+    # else:
+        # header = f'#include "{api}"'
 
     header += f"""
     PyMODINIT_FUNC PyInit_{name}(void);
