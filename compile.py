@@ -115,7 +115,7 @@ def create_algorithm_ffi(name, algorithm):
         for d in extra_sources:
            sources.extend([os.path.relpath(str(file), os.getcwd()) for file in Path(d).glob("*.c") if file.is_file()])
 
-    # include_dirs = ["/usr/include"]
+    include_dirs = [src]
     if hasattr(algorithm, "extra_include_dirs") and algorithm.extra_include_dirs:
         include_dirs = list(set(include_dirs).union(algorithm.extra_include_dirs))
         include_dirs = [os.path.join(src,d) for d in include_dirs]

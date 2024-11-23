@@ -89,6 +89,17 @@ XWING_HEADER = '''
 #define CRYPTO_SECRETKEYBYTES xwing_SECRETKEYBYTES
 '''
 
+TM_HEADER = '''
+#define crypto_kem_keypair xwing_ref_keypair
+#define crypto_kem_enc xwing_ref_enc
+#define crypto_kem_dec xwing_ref_dec
+
+#define CRYPTO_BYTES xwing_BYTES
+#define CRYPTO_CIPHERTEXTBYTES xwing_CIPHERTEXTBYTES
+#define CRYPTO_PUBLICKEYBYTES xwing_PUBLICKEYBYTES
+#define CRYPTO_SECRETKEYBYTES xwing_SECRETKEYBYTES
+'''
+
 @dataclass
 class AlgorithmConfig:
     """_summary_
@@ -160,6 +171,13 @@ ALGORITHMS = {
     "sntryp761": AlgorithmConfig(path="sntryp761",
                         extra_header=SNTRUP761_HEADER),
     "xwing": AlgorithmConfig(path = "xwing",
+                            is_common=False,
+                            extra_sources = ["mlkem/ref"],
+                            extra_header = XWING_HEADER,
+                            extra_include_dirs = ["mlkem"],
+                            extra_libraries = ["25519"]
+                           ),
+    "tm": AlgorithmConfig(path = "tm",
                             is_common=False,
                             extra_sources = ["mlkem/ref"],
                             extra_header = XWING_HEADER,
