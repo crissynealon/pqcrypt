@@ -15,25 +15,18 @@ PATH_COMMON = os.path.join(PATH_SOURCES,"common")
 
 IS_WINDOWS, IS_LINUX, IS_MACOS = (lambda s: (s == "Windows", s == "Linux", s == "Darwin"))(platform.system())
 
-# different kem xwing from https://github.com/X-Wing-KEM-Team/xwing add derand
 DEFINITIONS = """
-    int cffi_crypto_keygen(uint8_t *pk, uint8_t *sk);
-    int cffi_crypto_encrypt(uint8_t *ct, uint8_t *ss, const uint8_t *pk);
-    int cffi_crypto_decrypt(uint8_t *ss, const uint8_t *ct, const uint8_t *sk);
-"""
-
-DEFINITIONS_KEM = """
     int cffi_crypto_keygen(uint8_t *pk, uint8_t *sk);
     int cffi_crypto_kem_encaps(uint8_t *c, uint8_t *key, const uint8_t *pk);
     int cffi_crypto_kem_decaps(uint8_t *key, const uint8_t *c, const uint8_t *sk);
+    int cffi_crypto_encrypt(uint8_t *ct, uint8_t *pt, const uint8_t *pk);
+    int cffi_crypto_decrypt(uint8_t *pt, const uint8_t *ct, const uint8_t *sk);
 
     #define CRYPTO_PUBLICKEYBYTES ...
     #define CRYPTO_SECRETKEYBYTES ...
     #define CRYPTO_CIPHERTEXTBYTES ...
+    #define CRYPTO_PLAINTEXTBYTES ...
     #define CRYPTO_BYTES ...
-"""
-
-DEFINITIONS_OTHERS = """
 """
 
 def create_algorithm_ffi(name, algorithm):
@@ -81,13 +74,14 @@ def create_algorithm_ffi(name, algorithm):
     src = os.path.join(algorithm_path , "ref")
     # "api.h" is also a standard header for algorithm
     api = os.path.join(src , "api.h")
+    pqcrypth = os.path.join(src , "pqcrypt.h")
 
     ffi = FFI()
-    # ffi.cdef(DEFINITIONS_KEM)
+    ffi.cdef(DEFINITIONS)
 
     header = ""
     if hasattr(algorithm, "extra_header") and algorithm.extra_header:
-        header = f'#include "{api}"' + algorithm.extra_header
+        header = f'#include "{pqcrypth}"' + algorithm.extra_header
         # header = algorithm.extra_header
     # else:
         # header = f'#include "{api}"'
