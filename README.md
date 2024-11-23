@@ -61,7 +61,8 @@ ntruhps2048509
 ntruhps2048677  
 ntruhps4096821  
 ntruhrss701  
-saber  
+saber
+sntrup761_clean from liboqs  
 hqc128  
 hqc192  
 hqc256  
@@ -70,8 +71,11 @@ mlkem768
 mlkem1024  
 xwing  
 
+## Support in the future
+bike
+
 ## Thanks
 https://github.com/kpdemetriou/pqcrypto  
 https://github.com/PQClean/PQClean  
 https://github.com/X-Wing-KEM-Team/xwing  
-
+https://github.com/open-quantum-safe/liboqs
