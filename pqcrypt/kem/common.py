@@ -104,7 +104,7 @@ def _kem_decrypt_factory(ffi, lib, use_threadpool=False):
         if len(secret_key) != lib.CFFI_CRYPTO_SECRETKEYBYTES:
             raise ValueError(f"'secret_key' must be of length '{ lib.CFFI_CRYPTO_PUBLICKEYBYTES }'")
 
-        plaintext_buf = ffi.new("uint8_t [{}]".format(lib.CFFI_CRYPTO_BYTES))
+        plaintext_buf = ffi.new("uint8_t [{}]".format(lib.CFFI_CRYPTO_PLAINTEXTBYTES))
 
         if len(ciphertext) != lib.CFFI_CRYPTO_CIPHERTEXTBYTES:
             raise ValueError(f"'ciphertext' must be of length '{ lib.CFFI_CRYPTO_CIPHERTEXTBYTES }'")
