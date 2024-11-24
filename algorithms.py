@@ -16,10 +16,13 @@ HQC128_HEADER = '''
 '''
 
 HQC192_HEADER = '''
-#define cffi_crypto_keygen PQCLEAN_HQC192_CLEAN_crypto_keygen
-#define cffi_crypto_kem_encaps PQCLEAN_HQC192_CLEAN_crypto_kem_encaps
-#define cffi_crypto_kem_decaps PQCLEAN_HQC192_CLEAN_crypto_kem_decaps
+#define cffi_crypto_keygen PQCLEAN_HQC192_CLEAN_crypto_kem_keypair
+#define cffi_crypto_kem_encaps PQCLEAN_HQC192_CLEAN_crypto_kem_enc
+#define cffi_crypto_kem_decaps PQCLEAN_HQC192_CLEAN_crypto_kem_dec
+#define cffi_crypto_encrypt PQCRYPT_HQC192_encrypt
+#define cffi_crypto_decrypt PQCRYPT_HQC192_decrypt
 
+#define CRYPTO_ALGNAME PQCLEAN_HQC192_CLEAN_CRYPTO_ALGNAME
 #define CRYPTO_BYTES PQCLEAN_HQC192_CLEAN_CRYPTO_BYTES
 #define CRYPTO_CIPHERTEXTBYTES PQCLEAN_HQC192_CLEAN_CRYPTO_CIPHERTEXTBYTES
 #define CRYPTO_PUBLICKEYBYTES PQCLEAN_HQC192_CLEAN_CRYPTO_PUBLICKEYBYTES
@@ -27,10 +30,13 @@ HQC192_HEADER = '''
 '''
 
 HQC256_HEADER = '''
-#define cffi_crypto_keygen PQCLEAN_HQC256_CLEAN_cffi_crypto_keygen
-#define cffi_crypto_kem_encaps PQCLEAN_HQC256_CLEAN_cffi_crypto_kem_encaps
-#define cffi_crypto_kem_decaps PQCLEAN_HQC256_CLEAN_cffi_crypto_kem_decaps
+#define cffi_crypto_keygen PQCLEAN_HQC256_CLEAN_crypto_kem_keypair
+#define cffi_crypto_kem_encaps PQCLEAN_HQC256_CLEAN_crypto_kem_enc
+#define cffi_crypto_kem_decaps PQCLEAN_HQC256_CLEAN_crypto_kem_dec
+#define cffi_crypto_encrypt PQCRYPT_HQC256_encrypt
+#define cffi_crypto_decrypt PQCRYPT_HQC256_decrypt
 
+#define CRYPTO_ALGNAME PQCLEAN_HQC256_CLEAN_CRYPTO_ALGNAME
 #define CRYPTO_BYTES PQCLEAN_HQC256_CLEAN_CRYPTO_BYTES
 #define CRYPTO_CIPHERTEXTBYTES PQCLEAN_HQC256_CLEAN_CRYPTO_CIPHERTEXTBYTES
 #define CRYPTO_PUBLICKEYBYTES PQCLEAN_HQC256_CLEAN_CRYPTO_PUBLICKEYBYTES
