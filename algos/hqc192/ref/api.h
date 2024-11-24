@@ -16,7 +16,7 @@
 
 // As a technicality, the public key is appended to the secret key in order to respect the NIST API.
 // Without this constraint, PQCLEAN_HQC192_CLEAN_CRYPTO_SECRETKEYBYTES would be defined as 32
-in.
+
 int PQCLEAN_HQC192_CLEAN_crypto_kem_keypair(uint8_t *pk, uint8_t *sk);
 
 int PQCLEAN_HQC192_CLEAN_crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk);

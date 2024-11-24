@@ -3,7 +3,7 @@ import sys
 import platform
 from cffi import FFI
 from pathlib import Path
-from algorithms import AlgorithmConfig, ALGORITHMS, SUPPORT_ALGORITHMS
+from algorithms import ALGORITHMS, SUPPORT_ALGORITHMS
 
 # for debuggging
 import ipdb
@@ -15,18 +15,19 @@ PATH_COMMON = os.path.join(PATH_SOURCES,"common")
 
 IS_WINDOWS, IS_LINUX, IS_MACOS = (lambda s: (s == "Windows", s == "Linux", s == "Darwin"))(platform.system())
 
+# NOTICE: Our python interface is headwith "cffi/CFFI"
 DEFINITIONS = """
     int cffi_crypto_keygen(uint8_t *pk, uint8_t *sk);
-    int cffi_crypto_kem_encaps(uint8_t *c, uint8_t *key, const uint8_t *pk);
-    int cffi_crypto_kem_decaps(uint8_t *key, const uint8_t *c, const uint8_t *sk);
+    int cffi_crypto_kem_encaps(uint8_t *ct, uint8_t *ss, const uint8_t *pk);
+    int cffi_crypto_kem_decaps(uint8_t *ss, const uint8_t *ct, const uint8_t *sk);
     int cffi_crypto_encrypt(uint8_t *ct, uint8_t *pt, const uint8_t *pk);
     int cffi_crypto_decrypt(uint8_t *pt, const uint8_t *ct, const uint8_t *sk);
 
-    #define CRYPTO_PUBLICKEYBYTES ...
-    #define CRYPTO_SECRETKEYBYTES ...
-    #define CRYPTO_CIPHERTEXTBYTES ...
-    #define CRYPTO_PLAINTEXTBYTES ...
-    #define CRYPTO_BYTES ...
+    #define CFFI_CRYPTO_PUBLICKEYBYTES ...
+    #define CFFI_CRYPTO_SECRETKEYBYTES ...
+    #define CFFI_CRYPTO_CIPHERTEXTBYTES ...
+    #define CFFI_CRYPTO_PLAINTEXTBYTES ...
+    #define CFFI_CRYPTO_BYTES ...
 """
 
 def create_algorithm_ffi(name, algorithm):
@@ -70,21 +71,20 @@ def create_algorithm_ffi(name, algorithm):
     else:
         raise SystemError("Don't know your platform?")
 
-    # "ref" is a standard path in NIST
+    # "ref" is a standard implementation refer from NIST
     src = os.path.join(algorithm_path , "ref")
     # "api.h" is also a standard header for algorithm
-    api = os.path.join(src , "api.h")
+    # api = os.path.join(src , "api.h")
+
+    # "pqcrypt.h" is our standard header for python interface
     pqcrypth = os.path.join(src , "pqcrypt.h")
 
     ffi = FFI()
     ffi.cdef(DEFINITIONS)
 
-    header = ""
+    header = f'#include "{pqcrypth}"'
     if hasattr(algorithm, "extra_header") and algorithm.extra_header:
-        header = f'#include "{pqcrypth}"' + algorithm.extra_header
-        # header = algorithm.extra_header
-    # else:
-        # header = f'#include "{api}"'
+        header += algorithm.extra_header
 
     header += f"""
     PyMODINIT_FUNC PyInit_{name}(void);
@@ -122,10 +122,7 @@ def create_algorithm_ffi(name, algorithm):
     if hasattr(algorithm, "extra_libraries") and algorithm.extra_libraries:
         libraries = list(set(libraries).union(algorithm.extra_libraries))
 
-    # print("include_dirs", include_dirs)
-    # print(header)
-    # print(sources)
-
+    print(header)
     # HACKME: Only support POSIX pure C implementation
     ffi.set_source(
         f"pqcrypt._kem.{name}",
