@@ -6,7 +6,7 @@ def _kem_keygen_factory(ffi, lib, use_threadpool=False):
         secret_key_buf = ffi.new("uint8_t [{}]".format(lib.CRYPTO_SECRETKEYBYTES))
 
         if 0 != lib.cffi_crypto_keygen(public_key_buf, secret_key_buf):
-            raise RuntimeError("KEM keypair generation failed")
+            raise RuntimeError("KEM keygen generation failed")
 
         public_key = bytes(ffi.buffer(public_key_buf, lib.CRYPTO_PUBLICKEYBYTES))
         secret_key = bytes(ffi.buffer(secret_key_buf, lib.CRYPTO_SECRETKEYBYTES))
@@ -28,7 +28,7 @@ def _kem_encaps_factory(ffi, lib, use_threadpool=False):
         plaintext_buf = ffi.new("uint8_t [{}]".format(lib.CRYPTO_BYTES))
 
         if 0 != lib.cffi_crypto_kem_encaps(ciphertext_buf, plaintext_buf, public_key):
-            raise RuntimeError("KEM encryption failed")
+            raise RuntimeError("KEM encaps failed")
 
         ciphertext = bytes(ffi.buffer(ciphertext_buf, lib.CRYPTO_CIPHERTEXTBYTES))
         plaintext = bytes(ffi.buffer(plaintext_buf, lib.CRYPTO_BYTES))
@@ -55,11 +55,12 @@ def _kem_decaps_factory(ffi, lib, use_threadpool=False):
         plaintext_buf = ffi.new("uint8_t [{}]".format(lib.CRYPTO_BYTES))
 
         if 0 != lib.cffi_crypto_kem_decaps(plaintext_buf, ciphertext, secret_key):
-            raise RuntimeError("KEM decryption failed")
+            raise RuntimeError("KEM decaps failed")
 
         return bytes(ffi.buffer(plaintext_buf, lib.CRYPTO_BYTES))
 
     return _run_in_threadpool(decaps) if use_threadpool else decaps
+
 
 def _kem_encrypt_factory(ffi, lib, use_threadpool=False):
     def encrypt(plaintext, public_key):
@@ -72,19 +73,20 @@ def _kem_encrypt_factory(ffi, lib, use_threadpool=False):
         if not isinstance(plaintext, bytes):
             raise TypeError("'plaintext' must be of type 'bytes'")
 
-        # if len(plaintext) != lib.CRYPTO_BYTES:
-        #     raise ValueError(f"'plaintext' must be of length '{ lib.CRYPTO_BYTES }'")
+        if len(plaintext) != lib.CRYPTO_BYTES:
+            raise ValueError(f"'plaintext' now only support be length '{ lib.CRYPTO_BYTES }'")
 
         ciphertext_buf = ffi.new("uint8_t [{}]".format(lib.CRYPTO_CIPHERTEXTBYTES))
 
         if 0 != lib.cffi_crypto_encrypt(ciphertext_buf, plaintext, public_key):
-            raise RuntimeError("KEM encryption failed")
+            raise RuntimeError("KEM encrypt failed")
 
         ciphertext = bytes(ffi.buffer(ciphertext_buf, lib.CRYPTO_CIPHERTEXTBYTES))
 
         return ciphertext
 
     return _run_in_threadpool(encrypt) if use_threadpool else encrypt
+
 
 def _kem_decrypt_factory(ffi, lib, use_threadpool=False):
     def decrypt(ciphertext, secret_key):
@@ -96,12 +98,14 @@ def _kem_decrypt_factory(ffi, lib, use_threadpool=False):
 
         plaintext_buf = ffi.new("uint8_t [{}]".format(lib.CRYPTO_BYTES))
 
+        if len(ciphertext) != lib.CRYPTO_CIPHERTEXTBYTES:
+            raise ValueError(f"'ciphertext' must be of length '{ lib.CRYPTO_CIPHERTEXTBYTES }'")
+
         if 0 != lib.cffi_crypto_decrypt(plaintext_buf, ciphertext, secret_key):
-            raise RuntimeError("KEM encryption failed")
+            raise RuntimeError("KEM decrypt failed")
 
         plaintext = bytes(ffi.buffer(plaintext_buf, lib.CRYPTO_PLAINTEXTBYTES))
 
         return plaintext
 
     return _run_in_threadpool(decrypt) if use_threadpool else decrypt
-
