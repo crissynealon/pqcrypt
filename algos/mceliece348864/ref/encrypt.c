@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "gf.h"
+#include "pqcrypt.h"
 
 static inline uint8_t same_mask(uint16_t x, uint16_t y) {
     uint32_t mask;
@@ -134,5 +135,9 @@ void encrypt(unsigned char *s, unsigned char *e, const unsigned char *pk) {
     gen_e(e);
 
     syndrome(s, pk, e);
+}
+
+void PQCRYPT_mceliece348864_encrypt(){
+
 }
 
