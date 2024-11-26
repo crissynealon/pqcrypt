@@ -72,7 +72,7 @@ pt = algo.decrypt(ciphertext, sk)
 All the `keygen`, `encaps`, `decaps`, `encrypt` and `decrypt` all call from {algo}.so and native speed.
 
 ## Support algorithms
-### Post quantum algorithms
+### post quantum algorithms
 firesaber  
 frodokem1344aes  
 frodokem1344shake  
@@ -110,17 +110,18 @@ mlkem512
 mlkem768  
 mlkem1024  
 
-### Common algorithms
+### common algorithms
 rsa  
 dh  
 ecsda  
 
 ## Will support in the future
-bike
+bike  
+
 
 ## Migrate your own algorithm
 
-All the python interface is head with "CFFI/cffi"
+All the Python with C interface is head with "CFFI/cffi"
 
 ## Thanks
 https://github.com/kpdemetriou/pqcrypto  
