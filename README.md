@@ -7,6 +7,11 @@ post-quantum cryptography
 sudo apt-get install lib25519-1 lib25519-dev libssl-dev
 ```
 
+libsodium 1.0.20
+```shell
+conda remove libsodium --force
+```
+
 ## Usage
 
 Compile CFFI library for all the algorithms
