@@ -1,6 +1,5 @@
 from binascii import hexlify
 
-
 def firesaber():
     import pqcrypt.kem.firesaber as firesaber
 
@@ -509,8 +508,8 @@ def mceliece348864_clean():
 
     print('mceliece348864')
     pk, sk = mceliece348864.keygen()
-    print("pk", hexlify(pk))
-    print("sk", hexlify(sk))
+    # print("pk", hexlify(pk))
+    # print("sk", hexlify(sk))
 
     ct, ss = mceliece348864.encaps(pk)
     print("ss", hexlify(ss))
@@ -533,8 +532,8 @@ def mceliece348864f_clean():
 
     print('mceliece348864f')
     pk, sk = mceliece348864f.keygen()
-    print("pk", hexlify(pk))
-    print("sk", hexlify(sk))
+    # print("pk", hexlify(pk))
+    # print("sk", hexlify(sk))
 
     ct, ss = mceliece348864f.encaps(pk)
     print("ss", hexlify(ss))
@@ -557,8 +556,8 @@ def mceliece460896_clean():
 
     print('mceliece460896')
     pk, sk = mceliece460896.keygen()
-    print("pk", hexlify(pk))
-    print("sk", hexlify(sk))
+    # print("pk", hexlify(pk))
+    # print("sk", hexlify(sk))
 
     ct, ss = mceliece460896.encaps(pk)
     print("ss", hexlify(ss))
@@ -581,8 +580,8 @@ def mceliece460896f_clean():
 
     print('mceliece460896f')
     pk, sk = mceliece460896f.keygen()
-    print("pk", hexlify(pk))
-    print("sk", hexlify(sk))
+    # print("pk", hexlify(pk))
+    # print("sk", hexlify(sk))
 
     ct, ss = mceliece460896f.encaps(pk)
     print("ss", hexlify(ss))
@@ -605,8 +604,8 @@ def mceliece6688128_clean():
 
     print('mceliece6688128')
     pk, sk = mceliece6688128.keygen()
-    print("pk", hexlify(pk))
-    print("sk", hexlify(sk))
+    # print("pk", hexlify(pk))
+    # print("sk", hexlify(sk))
 
     ct, ss = mceliece6688128.encaps(pk)
     print("ss", hexlify(ss))
@@ -629,8 +628,8 @@ def mceliece6688128f_clean():
 
     print('mceliece6688128f')
     pk, sk = mceliece6688128f.keygen()
-    print("pk", hexlify(pk))
-    print("sk", hexlify(sk))
+    # print("pk", hexlify(pk))
+    # print("sk", hexlify(sk))
 
     ct, ss = mceliece6688128f.encaps(pk)
     print("ss", hexlify(ss))
@@ -653,8 +652,8 @@ def mceliece6960119_clean():
 
     print('mceliece6960119')
     pk, sk = mceliece6960119.keygen()
-    print("pk", hexlify(pk))
-    print("sk", hexlify(sk))
+    # print("pk", hexlify(pk))
+    # print("sk", hexlify(sk))
 
     ct, ss = mceliece6960119.encaps(pk)
     print("ss", hexlify(ss))
@@ -677,8 +676,8 @@ def mceliece6960119f_clean():
 
     print('mceliece6960119f')
     pk, sk = mceliece6960119f.keygen()
-    print("pk", hexlify(pk))
-    print("sk", hexlify(sk))
+    # print("pk", hexlify(pk))
+    # print("sk", hexlify(sk))
 
     ct, ss = mceliece6960119f.encaps(pk)
     print("ss", hexlify(ss))
@@ -701,8 +700,8 @@ def mceliece8192128_clean():
 
     print('mceliece8192128')
     pk, sk = mceliece8192128.keygen()
-    print("pk", hexlify(pk))
-    print("sk", hexlify(sk))
+    # print("pk", hexlify(pk))
+    # print("sk", hexlify(sk))
 
     ct, ss = mceliece8192128.encaps(pk)
     print("ss", hexlify(ss))
@@ -725,8 +724,8 @@ def mceliece8192128f_clean():
 
     print('mceliece8192128f')
     pk, sk = mceliece8192128f.keygen()
-    print("pk", hexlify(pk))
-    print("sk", hexlify(sk))
+    # print("pk", hexlify(pk))
+    # print("sk", hexlify(sk))
 
     ct, ss = mceliece8192128f.encaps(pk)
     print("ss", hexlify(ss))
@@ -744,6 +743,159 @@ def mceliece8192128f_clean():
     plaintext = mceliece8192128f.decrypt(ciphertext, sk)
     print("plain", hexlify(plaintext))
 
+
+def dhkem():
+    import pqcrypt.kem.dhkem as dhkem
+
+    print('dhkem')
+    pk, sk = dhkem.keygen()
+    print("pk", hexlify(pk))
+    print("sk", hexlify(sk))
+
+    ct, ss = dhkem.encaps(pk)
+    print("ss", hexlify(ss))
+
+    ss0 = dhkem.decaps(sk, ct)
+    print("ss0", hexlify(ss0))
+
+    assert(ss0 == ss)
+
+    print("PLAINTEXT_SIZE: ", dhkem.PLAINTEXT_SIZE)
+
+    ciphertext = dhkem.encrypt(b'a'*dhkem.PLAINTEXT_SIZE, pk)
+    print("cipher", hexlify(ciphertext))
+
+    plaintext = dhkem.decrypt(ciphertext, sk)
+    print("plain", hexlify(plaintext))
+
+def rsakem():
+    import pqcrypt.kem.rsakem as rsakem
+
+    print('rsakem')
+    pk, sk = rsakem.keygen()
+    print("pk", hexlify(pk))
+    print("sk", hexlify(sk))
+
+    ct, ss = rsakem.encaps(pk)
+    print("ss", hexlify(ss))
+
+    ss0 = rsakem.decaps(sk, ct)
+    print("ss0", hexlify(ss0))
+
+    assert(ss0 == ss)
+
+    print("PLAINTEXT_SIZE: ", rsakem.PLAINTEXT_SIZE)
+
+    ciphertext = rsakem.encrypt(b'a'*rsakem.PLAINTEXT_SIZE, pk)
+    print("cipher", hexlify(ciphertext))
+
+    plaintext = rsakem.decrypt(ciphertext, sk)
+    print("plain", hexlify(plaintext))
+
+def eckem():
+    import pqcrypt.kem.eckem as eckem
+
+    print('eckem')
+    pk, sk = eckem.keygen()
+    print("pk", hexlify(pk))
+    print("sk", hexlify(sk))
+
+    ct, ss = eckem.encaps(pk)
+    print("ss", hexlify(ss))
+
+    ss0 = eckem.decaps(sk, ct)
+    print("ss0", hexlify(ss0))
+
+    assert(ss0 == ss)
+
+    print("PLAINTEXT_SIZE: ", eckem.PLAINTEXT_SIZE)
+
+    ciphertext = eckem.encrypt(b'a'*eckem.PLAINTEXT_SIZE, pk)
+    print("cipher", hexlify(ciphertext))
+
+    plaintext = eckem.decrypt(ciphertext, sk)
+    print("plain", hexlify(plaintext))
+
+
+def x25519kem():
+    import pqcrypt.kem.x25519kem as x25519kem
+
+    print('x25519kem')
+    pk, sk = x25519kem.keygen()
+    print("pk", hexlify(pk))
+    print("sk", hexlify(sk))
+
+    ct, ss = x25519kem.encaps(pk)
+    print("ss", hexlify(ss))
+
+    ss0 = x25519kem.decaps(sk, ct)
+    print("ss0", hexlify(ss0))
+
+    assert(ss0 == ss)
+
+    # print("PLAINTEXT_SIZE: ", rsakem.PLAINTEXT_SIZE)
+
+    # ciphertext = rsakem.encrypt(b'a'*rsakem.PLAINTEXT_SIZE, pk)
+    # print("cipher", hexlify(ciphertext))
+
+    # plaintext = rsakem.decrypt(ciphertext, sk)
+    # print("plain", hexlify(plaintext))
+
+def x448kem():
+    import pqcrypt.kem.x25519kem as x448kem
+
+    print('x448kem')
+    pk, sk = x448kem.keygen()
+    print("pk", hexlify(pk))
+    print("sk", hexlify(sk))
+
+    ct, ss = x448kem.encaps(pk)
+    print("ss", hexlify(ss))
+
+    ss0 = x448kem.decaps(sk, ct)
+    print("ss0", hexlify(ss0))
+
+    assert(ss0 == ss)
+
+    # print("PLAINTEXT_SIZE: ", rsakem.PLAINTEXT_SIZE)
+
+    # ciphertext = rsakem.encrypt(b'a'*rsakem.PLAINTEXT_SIZE, pk)
+    # print("cipher", hexlify(ciphertext))
+
+    # plaintext = rsakem.decrypt(ciphertext, sk)
+    # print("plain", hexlify(plaintext))
+
+
+def bike():
+    import pqcrypt.kem.bike as bike
+
+    print('bike')
+    print(bike.CIPHERTEXT_SIZE)
+    print(bike.PLAINTEXT_SIZE)
+    print(bike.PUBLIC_KEY_SIZE)
+    print(bike.SECRET_KEY_SIZE)
+    print(bike.SHAREDKEY_SIZE)
+    # import ipdb; ipdb.set_trace();
+    pk, sk = bike.keygen()
+    print("pk", hexlify(pk))
+    print("sk", hexlify(sk))
+
+    ct, ss = bike.encaps(pk)
+    print("ss", hexlify(ss))
+
+    # ss0 = bike.decaps(sk, ct)
+    # print("ss0", hexlify(ss0))
+
+    # assert(ss0 == ss)
+
+    # print("PLAINTEXT_SIZE: ", bike.PLAINTEXT_SIZE)
+
+    # ciphertext = bike.encrypt(b'a'*bike.PLAINTEXT_SIZE, pk)
+    # print("cipher", hexlify(ciphertext))
+
+    # plaintext = bike.decrypt(ciphertext, sk)
+    # print("plain", hexlify(plaintext))
+
 def main():
     import pqcrypt.kem as kem
     print(kem.firesaber.PUBLIC_KEY_SIZE)
@@ -753,6 +905,13 @@ def main():
     print(kem.mceliece460896f.PLAINTEXT_SIZE)
 
 if __name__ == "__main__":
+    ## common
+    dhkem()
+    # rsakem()
+    # eckem()
+    # x25519kem()
+    # x448kem()
+
     ## Saber
     # firesaber()
     # lightsaber()
@@ -796,7 +955,6 @@ if __name__ == "__main__":
     # mceliece6960119f_clean()
     # mceliece8192128_clean()
     # mceliece8192128f_clean()
-
 
     ## ntruhps
     # ntruhps2048509()

@@ -1,5 +1,11 @@
+## supported algorithms
 from . import firesaber as firesaber
 from . import lightsaber as lightsaber
+from . import dhkem as dhkem
+from . import rsakem as rsakem
+from . import eckem as eckem
+# from . import x25519kem as x25519kem
+# from . import x448kem as x448kem
 from . import saber as saber
 from . import hqc128 as hqc128
 from . import hqc192 as hqc192
@@ -27,6 +33,8 @@ from . import mceliece6960119_clean as mceliece6960119
 from . import mceliece6960119f_clean as mceliece6960119f
 from . import mceliece8192128_clean as mceliece8192128
 from . import mceliece8192128f_clean as mceliece8192128f
+
+## unsupported algorithms
 # from . import fordokem640aes as fordokem640aes
 # from . import fordokem640shake as fordokem640shake
 # from . import fordokem976aes as fordokem976aes

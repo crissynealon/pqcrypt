@@ -57,15 +57,22 @@ def create_algorithm_ffi(name, algorithm):
     elif IS_LINUX:
         # the GCC compiler arguments are from PQClean
         # CFLAGS=-O3 -Wall -Wextra -Wpedantic -Wshadow -Wvla -Werror -Wredundant-decls -Wmissing-prototypes -std=c99
-        compiler_args +=["-O3",
-                        "-std=c99",
+        compiler_args +=["-O3", "-g",
+                        # "-std=c99",
+                        "-nostdinc++",
+                        # "-stdlib=libstdc++",
                         "-Wall",
                         "-Wextra",
                         "-Wpedantic",
                         "-Wvla",
                         "-Wredundant-decls",
                         "-Wmissing-prototypes",
-                        "-Wunused-result"]
+                        "-Wl,--no-as-needed",
+                        "-Wunused-result",
+                        "-DOPENSSL_API_COMPAT=0x30000000L",
+                        # "-DNIST_RAND=1",
+                        "-Wl,-rpath=/usr/local/lib64"
+                        ]
     elif IS_MACOS:
         raise SystemExit("MacOS have not implemented yet!")
     else:
@@ -73,8 +80,6 @@ def create_algorithm_ffi(name, algorithm):
 
     # "ref" is a standard implementation refer from NIST
     src = os.path.join(algorithm_path , "ref")
-    # "api.h" is also a standard header for algorithm
-    # api = os.path.join(src , "api.h")
 
     # "pqcrypt.h" is our standard header for python interface
     pqcrypth = os.path.join(src , "pqcrypt.h")
@@ -82,17 +87,33 @@ def create_algorithm_ffi(name, algorithm):
     ffi = FFI()
     ffi.cdef(DEFINITIONS)
 
+    # if hasattr(algorithm, "is_cpp") and algorithm.is_cpp:
+    #     header = '''
+    #     #ifdef __cplusplus
+    #     extern "C" {
+    #     #endif
+
+    #     #include "pqcrypt.h"
+
+    #     #ifdef __cplusplus
+    #     }
+    #     #endif
+    #     '''
+    # else:
     header = f'#include "{pqcrypth}"'
+
     if hasattr(algorithm, "extra_header") and algorithm.extra_header:
         header += algorithm.extra_header
 
     header += f"""
     PyMODINIT_FUNC PyInit_{name}(void);
     """
-
     # FIXME: Do not use absolute path
     src_files = [os.path.relpath(str(file), os.getcwd()) for file in Path(src).glob("*.c") if file.is_file()]
+    if hasattr(algorithm, "is_cpp") and algorithm.is_cpp:
+        src_files.extend([os.path.relpath(str(file), os.getcwd()) for file in Path(src).glob("*.cpp") if file.is_file()])
     common_files = [os.path.relpath(str(file), os.getcwd()) for file in Path(PATH_COMMON).glob("*.c") if file.is_file()]
+
     if hasattr(algorithm, "is_common") and algorithm.is_common:
         sources = [str(file) for file in (*common_files, *src_files)]
     else:
@@ -104,11 +125,16 @@ def create_algorithm_ffi(name, algorithm):
            sources.extend([os.path.relpath(str(file), os.getcwd()) for file in Path(d).glob("*.c") if file.is_file()])
 
     include_dirs = [src]
+    if hasattr(algorithm, "is_other_include") and algorithm.is_other_include:
+        # FIXME: need some others libraries, e.g. lib25519, libsodium, libssl, libcrypt
+        include_dirs.append("/usr/include")
+        include_dirs.append("/usr/local/include")
+        # include_dirs.append("/usr/include/c++/13")
+        # include_dirs.append("/usr/include/x86_64-linux-gnu/c++/13")
+
     if hasattr(algorithm, "extra_include_dirs") and algorithm.extra_include_dirs:
         include_dirs = list(set(include_dirs).union(algorithm.extra_include_dirs))
-        include_dirs = [os.path.join(src,d) for d in include_dirs]
-        # FIXME: need some others libraries, e.g. lib25519, lib
-        include_dirs.append("/usr/include")
+        include_dirs = [os.path.join(PATH_COMMON,d) for d in include_dirs]
 
     if hasattr(algorithm, "is_common") and algorithm.is_common:
         include_dirs.append(PATH_COMMON)
@@ -122,6 +148,12 @@ def create_algorithm_ffi(name, algorithm):
     if hasattr(algorithm, "extra_libraries") and algorithm.extra_libraries:
         libraries = list(set(libraries).union(algorithm.extra_libraries))
 
+    if hasattr(algorithm, "is_cpp") and algorithm.is_cpp:
+        os.environ['CXX'] = 'x86_64-conda-linux-gnu-c++'
+        os.environ['CC'] = 'x86_64-conda-linux-gnu-c++'
+
+        # compiler_args.append('-fpermissive')
+
     print(header)
     # HACKME: Only support POSIX pure C implementation
     ffi.set_source(
@@ -130,9 +162,10 @@ def create_algorithm_ffi(name, algorithm):
         sources=sources,
         include_dirs=include_dirs,
         extra_compile_args=compiler_args,
-        extra_link_args=link_args,
+        extra_link_args=["-Wl,--no-as-needed"],
+        # extra_link_args=link_args,
         libraries=libraries,
-        library_dirs=["/usr/lib", "/usr/local/lib"],
+        library_dirs=["/usr/local/lib", "/lib/x86_64-linux-gnu/"],
         source_extension='.c'
     )
 

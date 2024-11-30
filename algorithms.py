@@ -1,114 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-HQC128_HEADER = '''
-#define cffi_crypto_keygen PQCLEAN_HQC128_CLEAN_crypto_kem_keypair
-#define cffi_crypto_kem_encaps PQCLEAN_HQC128_CLEAN_crypto_kem_enc
-#define cffi_crypto_kem_decaps PQCLEAN_HQC128_CLEAN_crypto_kem_dec
-#define cffi_crypto_encrypt PQCRYPT_HQC128_encrypt
-#define cffi_crypto_decrypt PQCRYPT_HQC128_decrypt
-
-#define CRYPTO_ALGNAME PQCLEAN_HQC128_CLEAN_CRYPTO_ALGNAME
-#define CRYPTO_BYTES PQCLEAN_HQC128_CLEAN_CRYPTO_BYTES
-#define CRYPTO_CIPHERTEXTBYTES PQCLEAN_HQC128_CLEAN_CRYPTO_CIPHERTEXTBYTES
-#define CRYPTO_PUBLICKEYBYTES PQCLEAN_HQC128_CLEAN_CRYPTO_PUBLICKEYBYTES
-#define CRYPTO_SECRETKEYBYTES PQCLEAN_HQC128_CLEAN_CRYPTO_SECRETKEYBYTES
-'''
-
-HQC192_HEADER = '''
-#define cffi_crypto_keygen PQCLEAN_HQC192_CLEAN_crypto_kem_keypair
-#define cffi_crypto_kem_encaps PQCLEAN_HQC192_CLEAN_crypto_kem_enc
-#define cffi_crypto_kem_decaps PQCLEAN_HQC192_CLEAN_crypto_kem_dec
-#define cffi_crypto_encrypt PQCRYPT_HQC192_encrypt
-#define cffi_crypto_decrypt PQCRYPT_HQC192_decrypt
-
-#define CRYPTO_ALGNAME PQCLEAN_HQC192_CLEAN_CRYPTO_ALGNAME
-#define CRYPTO_BYTES PQCLEAN_HQC192_CLEAN_CRYPTO_BYTES
-#define CRYPTO_CIPHERTEXTBYTES PQCLEAN_HQC192_CLEAN_CRYPTO_CIPHERTEXTBYTES
-#define CRYPTO_PUBLICKEYBYTES PQCLEAN_HQC192_CLEAN_CRYPTO_PUBLICKEYBYTES
-#define CRYPTO_SECRETKEYBYTES PQCLEAN_HQC192_CLEAN_CRYPTO_SECRETKEYBYTES
-'''
-
-HQC256_HEADER = '''
-#define cffi_crypto_keygen PQCLEAN_HQC256_CLEAN_crypto_kem_keypair
-#define cffi_crypto_kem_encaps PQCLEAN_HQC256_CLEAN_crypto_kem_enc
-#define cffi_crypto_kem_decaps PQCLEAN_HQC256_CLEAN_crypto_kem_dec
-#define cffi_crypto_encrypt PQCRYPT_HQC256_encrypt
-#define cffi_crypto_decrypt PQCRYPT_HQC256_decrypt
-
-#define CRYPTO_ALGNAME PQCLEAN_HQC256_CLEAN_CRYPTO_ALGNAME
-#define CRYPTO_BYTES PQCLEAN_HQC256_CLEAN_CRYPTO_BYTES
-#define CRYPTO_CIPHERTEXTBYTES PQCLEAN_HQC256_CLEAN_CRYPTO_CIPHERTEXTBYTES
-#define CRYPTO_PUBLICKEYBYTES PQCLEAN_HQC256_CLEAN_CRYPTO_PUBLICKEYBYTES
-#define CRYPTO_SECRETKEYBYTES PQCLEAN_HQC256_CLEAN_CRYPTO_SECRETKEYBYTES
-'''
-
-MLKEM512_HEADER = '''
-#define cffi_crypto_keygen PQCLEAN_MLKEM512_CLEAN_cffi_crypto_keygen
-#define cffi_crypto_kem_encaps PQCLEAN_MLKEM512_CLEAN_cffi_crypto_kem_encaps
-#define cffi_crypto_kem_decaps PQCLEAN_MLKEM512_CLEAN_cffi_crypto_kem_decaps
-
-#define CRYPTO_BYTES PQCLEAN_MLKEM512_CLEAN_CRYPTO_BYTES
-#define CRYPTO_CIPHERTEXTBYTES PQCLEAN_MLKEM512_CLEAN_CRYPTO_CIPHERTEXTBYTES
-#define CRYPTO_PUBLICKEYBYTES PQCLEAN_MLKEM512_CLEAN_CRYPTO_PUBLICKEYBYTES
-#define CRYPTO_SECRETKEYBYTES PQCLEAN_MLKEM512_CLEAN_CRYPTO_SECRETKEYBYTES
-'''
-
-MLKEM768_HEADER = '''
-#define cffi_crypto_keygen PQCLEAN_MLKEM768_CLEAN_cffi_crypto_keygen
-#define cffi_crypto_kem_encaps PQCLEAN_MLKEM768_CLEAN_cffi_crypto_kem_encaps
-#define cffi_crypto_kem_decaps PQCLEAN_MLKEM768_CLEAN_cffi_crypto_kem_decaps
-
-#define CRYPTO_BYTES PQCLEAN_MLKEM768_CLEAN_CRYPTO_BYTES
-#define CRYPTO_CIPHERTEXTBYTES PQCLEAN_MLKEM768_CLEAN_CRYPTO_CIPHERTEXTBYTES
-#define CRYPTO_PUBLICKEYBYTES PQCLEAN_MLKEM768_CLEAN_CRYPTO_PUBLICKEYBYTES
-#define CRYPTO_SECRETKEYBYTES PQCLEAN_MLKEM768_CLEAN_CRYPTO_SECRETKEYBYTES
-'''
-
-MLKEM1024_HEADER = '''
-#define cffi_crypto_keygen PQCLEAN_MLKEM1024_CLEAN_cffi_crypto_keygen
-#define cffi_crypto_kem_encaps PQCLEAN_MLKEM1024_CLEAN_cffi_crypto_kem_encaps
-#define cffi_crypto_kem_decaps PQCLEAN_MLKEM1024_CLEAN_cffi_crypto_kem_decaps
-
-#define CRYPTO_BYTES PQCLEAN_MLKEM1024_CLEAN_CRYPTO_BYTES
-#define CRYPTO_CIPHERTEXTBYTES PQCLEAN_MLKEM1024_CLEAN_CRYPTO_CIPHERTEXTBYTES
-#define CRYPTO_PUBLICKEYBYTES PQCLEAN_MLKEM1024_CLEAN_CRYPTO_PUBLICKEYBYTES
-#define CRYPTO_SECRETKEYBYTES PQCLEAN_MLKEM1024_CLEAN_CRYPTO_SECRETKEYBYTES
-'''
-
-SNTRUP761_HEADER='''
-#define cffi_crypto_keygen PQCLEAN_SNTRUP761_CLEAN_cffi_crypto_keygen
-#define cffi_crypto_kem_encaps PQCLEAN_SNTRUP761_CLEAN_cffi_crypto_kem_encaps
-#define cffi_crypto_kem_decaps PQCLEAN_SNTRUP761_CLEAN_cffi_crypto_kem_decaps
-
-#define CRYPTO_SECRETKEYBYTES PQCLEAN_SNTRUP761_CLEAN_CRYPTO_SECRETKEYBYTES
-#define CRYPTO_PUBLICKEYBYTES PQCLEAN_SNTRUP761_CLEAN_CRYPTO_PUBLICKEYBYTES
-#define CRYPTO_CIPHERTEXTBYTES PQCLEAN_SNTRUP761_CLEAN_CRYPTO_CIPHERTEXTBYTES
-#define CRYPTO_BYTES PQCLEAN_SNTRUP761_CLEAN_CRYPTO_BYTES
-'''
-
-XWING_HEADER = '''
-#define cffi_crypto_keygen xwing_ref_keypair
-#define cffi_crypto_kem_encaps xwing_ref_enc
-#define cffi_crypto_kem_decaps xwing_ref_dec
-
-#define CRYPTO_BYTES xwing_BYTES
-#define CRYPTO_CIPHERTEXTBYTES xwing_CIPHERTEXTBYTES
-#define CRYPTO_PUBLICKEYBYTES xwing_PUBLICKEYBYTES
-#define CRYPTO_SECRETKEYBYTES xwing_SECRETKEYBYTES
-'''
-
-TM_HEADER = '''
-#define cffi_crypto_keygen xwing_ref_keypair
-#define cffi_crypto_kem_encaps xwing_ref_enc
-#define cffi_crypto_kem_decaps xwing_ref_dec
-
-#define CRYPTO_BYTES xwing_BYTES
-#define CRYPTO_CIPHERTEXTBYTES xwing_CIPHERTEXTBYTES
-#define CRYPTO_PUBLICKEYBYTES xwing_PUBLICKEYBYTES
-#define CRYPTO_SECRETKEYBYTES xwing_SECRETKEYBYTES
-'''
-
 @dataclass
 class AlgorithmConfig:
     """_summary_
@@ -124,7 +16,10 @@ class AlgorithmConfig:
     """
     path: str
     is_kem: bool = True
+    is_cpp: bool = False
     is_common: bool = True
+    is_debug: bool = True
+    is_other_include: bool = True
     extra_header: Optional[str] = None
     extra_sources: List[str] = field(default_factory=list)
     extra_include_dirs: List[str] = field(default_factory=list)
@@ -135,6 +30,14 @@ class AlgorithmConfig:
 SUPPORT_ALGORITHMS = []
 
 ALGORITHMS = {
+    # common
+    "dhkem": AlgorithmConfig(path="dhkem", is_other_include=True, extra_libraries=['25519','sodium']),
+    "rsakem": AlgorithmConfig(path="rsakem", is_other_include=True, extra_libraries=['crypto', 'ssl']),
+    "eckem": AlgorithmConfig(path="eckem", is_other_include=True, extra_libraries=['crypto', 'ssl']),
+    "x25519kem": AlgorithmConfig(path="x5519kem", is_other_include=True, extra_libraries=['crypto', 'ssl']),
+    "x448kem": AlgorithmConfig(path="x448kem", is_other_include=True, extra_libraries=['crypto', 'ssl']),
+
+    # post-quantum
     "firesaber": AlgorithmConfig(path = "firesaber"),
     "frodokem1344aes": AlgorithmConfig(path = "frodokem1344aes"),
     "frodokem1344shake": AlgorithmConfig(path = "frodokem1344shake"),
@@ -182,14 +85,18 @@ ALGORITHMS = {
     "mlkem1024": AlgorithmConfig(path = "mlkem1024"),
     "sntryp761": AlgorithmConfig(path="sntryp761"),
 
-    # hybird KEM
-    # "xwing": AlgorithmConfig(path = "xwing",
-    #                         is_common=False,
-    #                         extra_sources = ["mlkem/ref"],
-    #                         extra_header = XWING_HEADER,
-    #                         extra_include_dirs = ["mlkem"],
-    #                         extra_libraries = ["25519"]
-    #                        ),
+    # new
+    "bike": AlgorithmConfig(path="bike", is_cpp=True, is_common=False, is_other_include=True, extra_libraries=["crypto","ssl","m","dl","ntl","gmp","gf2x", "pthread"]),
+
+    # hybird
+    "xwing": AlgorithmConfig(path = "xwing",
+                            is_common = False,
+                            is_other_include = True,
+                            extra_sources = ["mlkem/ref"],
+                            # extra_header = True,
+                            # extra_include_dirs = ["mlkem"],
+                            extra_libraries = ["25519"]
+                           ),
     # "tm": AlgorithmConfig(path = "tm",
     #                         is_common=False,
     #                         extra_sources = ["mlkem/ref"],
