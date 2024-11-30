@@ -17,25 +17,23 @@ static EVP_PKEY* generate_ec_key() {
     EVP_PKEY_CTX *ctx = NULL;
     EVP_PKEY *pkey = NULL;
 
-    ctx = EVP_PKEY_CTX_new_from_name(NULL, "EC", NULL);
-    if (!ctx) return NULL;
+    // Create context with explicit NULL library context
+    ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
+    if (!ctx)
+        return NULL;
 
     if (EVP_PKEY_keygen_init(ctx) <= 0) {
         EVP_PKEY_CTX_free(ctx);
         return NULL;
     }
 
-    OSSL_PARAM params[] = {
-        OSSL_PARAM_utf8_string("group", "P-256", 0),
-        OSSL_PARAM_END
-    };
-
-    if (EVP_PKEY_CTX_set_params(ctx, params) <= 0) {
+    // Set the curve parameters using the correct parameter name
+    if (EVP_PKEY_CTX_set_ec_paramgen_curve_nid(ctx, NID_X9_62_prime256v1) <= 0) {
         EVP_PKEY_CTX_free(ctx);
         return NULL;
     }
 
-    if (EVP_PKEY_generate(ctx, &pkey) <= 0) {
+    if (EVP_PKEY_keygen(ctx, &pkey) <= 0) {
         EVP_PKEY_CTX_free(ctx);
         return NULL;
     }
@@ -43,70 +41,118 @@ static EVP_PKEY* generate_ec_key() {
     EVP_PKEY_CTX_free(ctx);
     return pkey;
 }
-// Generate keypair for EC-KEM
+
+
 int PQCRYPT_crypto_eckem_keypair(unsigned char *pk, unsigned char *sk) {
-OSSL_PROVIDER *defprov = OSSL_PROVIDER_load(NULL, "default");
-OSSL_PROVIDER *defprov = OSSL_PROVIDER_load(NULL, "default");
-    if (!defprov) return -1;
+    int ret = -1;
+    OSSL_PROVIDER *defprov = NULL;
+    EVP_PKEY *keypair = NULL;
+    unsigned char *temp_buf = NULL;
+    BIGNUM *priv_key_bn = NULL;
 
-    EVP_PKEY *keypair = generate_ec_key();
+    // Load the default provider
+    defprov = OSSL_PROVIDER_load(NULL, "default");
+    if (!defprov) {
+        handle_openssl_error();
+        goto cleanup;
+    }
+
+    // Generate the EC keypair
+    keypair = generate_ec_key();
     if (!keypair) {
-        OSSL_PROVIDER_unload(defprov);
-        return -1;
+        handle_openssl_error();
+        goto cleanup;
     }
 
-    EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(keypair);
-    if (!ec_key) {
-        EVP_PKEY_free(keypair);
-        OSSL_PROVIDER_unload(defprov);
-        return -1;
+    // Get public key in correct format
+    size_t pk_len = 0;
+    if (EVP_PKEY_get_octet_string_param(keypair, OSSL_PKEY_PARAM_PUB_KEY, NULL, 0, &pk_len) <= 0) {
+        handle_openssl_error();
+        goto cleanup;
     }
 
-    const EC_POINT *pub_key = EC_KEY_get0_public_key(ec_key);
-    const EC_GROUP *group = EC_KEY_get0_group(ec_key);
-    
-    size_t pk_len = EC_POINT_point2oct(group, pub_key,
-                                      POINT_CONVERSION_COMPRESSED,
-                                      pk, PQCRYPT_CRYPTO_PUBLICKEYBYTES, NULL);
-    if (pk_len == 0) {
-        EC_KEY_free(ec_key);
-        EVP_PKEY_free(keypair);
-        OSSL_PROVIDER_unload(defprov);
-        return -1;
+    if (pk_len > PQCRYPT_CRYPTO_PUBLICKEYBYTES) {
+        fprintf(stderr, "Public key too large\n");
+        goto cleanup;
     }
 
-    // 导出私钥
-    const BIGNUM *priv_key = EC_KEY_get0_private_key(ec_key);
-    if (BN_bn2binpad(priv_key, sk, PQCRYPT_CRYPTO_SECRETKEYBYTES) < 0) {
-        EC_KEY_free(ec_key);
-        EVP_PKEY_free(keypair);
-        OSSL_PROVIDER_unload(defprov);
-        return -1;
+    if (EVP_PKEY_get_octet_string_param(keypair, OSSL_PKEY_PARAM_PUB_KEY, pk, PQCRYPT_CRYPTO_PUBLICKEYBYTES, &pk_len) <= 0) {
+        handle_openssl_error();
+        goto cleanup;
     }
 
-    EC_KEY_free(ec_key);
-    EVP_PKEY_free(keypair);
-    OSSL_PROVIDER_unload(defprov);
-    return 0;
+    // Get private key as BIGNUM
+    if (EVP_PKEY_get_bn_param(keypair, OSSL_PKEY_PARAM_PRIV_KEY, &priv_key_bn) <= 0 || !priv_key_bn) {
+        handle_openssl_error();
+        goto cleanup;
+    }
+
+    // Convert BIGNUM to fixed-length binary
+    if (BN_bn2binpad(priv_key_bn, sk, PQCRYPT_CRYPTO_SECRETKEYBYTES) != PQCRYPT_CRYPTO_SECRETKEYBYTES) {
+        fprintf(stderr, "Failed to encode private key\n");
+        handle_openssl_error();
+        goto cleanup;
+    }
+
+    ret = 0; // Success
+
+cleanup:
+    if (priv_key_bn) BN_free(priv_key_bn);
+    if (keypair) EVP_PKEY_free(keypair);
+    if (defprov) OSSL_PROVIDER_unload(defprov);
+
+    return ret;
 }
 
-// Encapsulation function
 int PQCRYPT_crypto_eckem_enc(unsigned char *ct, unsigned char *ss, const unsigned char *pk) {
     OSSL_PROVIDER *defprov = OSSL_PROVIDER_load(NULL, "default");
-    if (!defprov) return -1;
+    if (!defprov)
+        handle_openssl_error();
 
-    // Create public key from raw bytes
-    EVP_PKEY *pubkey = NULL;
-    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
-    if (!ctx) {
+    int ret = -1;
+    EVP_KEM *kem = EVP_KEM_fetch(NULL, "EC", NULL);
+    if (!kem) {
         OSSL_PROVIDER_unload(defprov);
-        return -1;
+        handle_openssl_error();
     }
 
-    if (EVP_PKEY_fromdata_init(ctx) <= 0) {
-        EVP_PKEY_CTX_free(ctx);
-        OSSL_PROVIDER_unload(defprov);
-        return -1;
+    EC_KEY *ec_key = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+    if (!ec_key)
+        goto cleanup;
+
+    const EC_GROUP *group = EC_KEY_get0_group(ec_key);
+    EC_POINT *pub_point = EC_POINT_new(group);
+    if (!pub_point)
+        goto cleanup;
+
+    size_t pk_len = PQCRYPT_CRYPTO_PUBLICKEYBYTES;
+
+    if (!EC_POINT_oct2point(group, pub_point, pk, pk_len, NULL)) {
+        fprintf(stderr, "Failed to decode compressed public key point\n");
+        ERR_print_errors_fp(stderr);
+        goto cleanup;
+    }
+
+    if (!EC_KEY_set_public_key(ec_key, pub_point)) {
+        fprintf(stderr, "Failed to set public key\n");
+        ERR_print_errors_fp(stderr);
+        goto cleanup;
+    }
+
+    EC_POINT_free(pub_point);
+
+    EC_KEY_set_conv_form(ec_key, POINT_CONVERSION_COMPRESSED);
+
+    EVP_PKEY *pubkey = EVP_PKEY_new();
+    if (!pubkey || !EVP_PKEY_assign_EC_KEY(pubkey, ec_key)) {
+        fprintf(stderr, "Failed to create EVP_PKEY\n");
+        if (!pubkey) EC_KEY_free(ec_key);
+        goto cleanup;
+    }
+    EVP_PKEY_CTX *kem_ctx = EVP_PKEY_CTX_new_from_pkey(NULL, pubkey, "provider=default");
+    if (!kem_ctx) {
+        fprintf(stderr, "Failed to create KEM context\n");
+        goto cleanup;
     }
 
     OSSL_PARAM params[] = {
@@ -114,79 +160,136 @@ int PQCRYPT_crypto_eckem_enc(unsigned char *ct, unsigned char *ss, const unsigne
         OSSL_PARAM_END
     };
 
-    // Create KEM context for encapsulation
-    EVP_PKEY_CTX *kem_ctx = EVP_PKEY_CTX_new_from_pkey(NULL, pubkey, "provider=default");
-    if (!kem_ctx || EVP_PKEY_encapsulate_init(kem_ctx, params) <= 0) {
-        EVP_PKEY_free(pubkey);
-        EVP_PKEY_CTX_free(ctx);
-        OSSL_PROVIDER_unload(defprov);
-        return -1;
-    }
-
-    // Perform encapsulation
-    size_t ct_len = 65; // Maximum size for P-256
-    size_t ss_len = 32; // Shared secret size
-    if (EVP_PKEY_encapsulate(kem_ctx, ct, &ct_len, ss, &ss_len) <= 0) {
+    if (EVP_PKEY_encapsulate_init(kem_ctx, params) <= 0) {
+        fprintf(stderr, "Failed to initialize encapsulation\n");
         EVP_PKEY_CTX_free(kem_ctx);
-        EVP_PKEY_free(pubkey);
-        EVP_PKEY_CTX_free(ctx);
-        OSSL_PROVIDER_unload(defprov);
-        return -1;
+        goto cleanup;
     }
 
+    size_t ct_len = PQCRYPT_CRYPTO_CIPHERTEXTBYTES;
+    size_t ss_len = PQCRYPT_CRYPTO_BYTES;
+
+    if (EVP_PKEY_encapsulate(kem_ctx, ct, &ct_len, ss, &ss_len) <= 0) {
+        fprintf(stderr, "Encapsulation failed\n");
+        goto cleanup;
+    }
+
+    ret = 0;
+
+cleanup:
+    if (ret != 0)
+        ERR_print_errors_fp(stderr);
     EVP_PKEY_CTX_free(kem_ctx);
     EVP_PKEY_free(pubkey);
-    EVP_PKEY_CTX_free(ctx);
+    EVP_KEM_free(kem);
     OSSL_PROVIDER_unload(defprov);
-    return 0;
+    return ret;
 }
 
 // Decapsulation function
 int PQCRYPT_crypto_eckem_dec(unsigned char *ss, const unsigned char *ct, const unsigned char *sk) {
-    OSSL_PROVIDER *defprov = OSSL_PROVIDER_load(NULL, "default");
-    if (!defprov) return -1;
-
-    // Create private key from raw bytes
+    OSSL_PROVIDER *defprov = NULL;
     EVP_PKEY *privkey = NULL;
-    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
-    if (!ctx) {
-        OSSL_PROVIDER_unload(defprov);
-        return -1;
+    EVP_KEM *kem = NULL;
+    EC_KEY *ec_key = NULL;
+    EVP_PKEY_CTX *kem_ctx = NULL;
+    BIGNUM *priv_bn = NULL;
+    int ret = -1;
+
+    // Load provider
+    defprov = OSSL_PROVIDER_load(NULL, "default");
+    if (!defprov) {
+        handle_openssl_error();
+        goto cleanup;
     }
 
-    if (EVP_PKEY_fromdata_init(ctx) <= 0) {
-        EVP_PKEY_CTX_free(ctx);
-        OSSL_PROVIDER_unload(defprov);
-        return -1;
+    // Create EC key structure
+    ec_key = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+    if (!ec_key) {
+        handle_openssl_error();
+        goto cleanup;
     }
 
+    // Convert private key bytes to BIGNUM
+    priv_bn = BN_bin2bn(sk, PQCRYPT_CRYPTO_SECRETKEYBYTES, NULL);
+    if (!priv_bn) {
+        handle_openssl_error();
+        goto cleanup;
+    }
+
+    // Set private key
+    if (!EC_KEY_set_private_key(ec_key, priv_bn)) {
+        handle_openssl_error();
+        goto cleanup;
+    }
+
+    // Get group and generate public key
+    const EC_GROUP *group = EC_KEY_get0_group(ec_key);
+    EC_POINT *pub_point = EC_POINT_new(group);
+    if (!pub_point) {
+        handle_openssl_error();
+        goto cleanup;
+    }
+
+    // Calculate public key point
+    if (!EC_POINT_mul(group, pub_point, priv_bn, NULL, NULL, NULL)) {
+        EC_POINT_free(pub_point);
+        handle_openssl_error();
+        goto cleanup;
+    }
+
+    // Set public key
+    if (!EC_KEY_set_public_key(ec_key, pub_point)) {
+        EC_POINT_free(pub_point);
+        handle_openssl_error();
+        goto cleanup;
+    }
+
+    EC_POINT_free(pub_point);
+
+    // Convert to EVP_PKEY
+    privkey = EVP_PKEY_new();
+    if (!privkey || !EVP_PKEY_assign_EC_KEY(privkey, ec_key)) {
+        handle_openssl_error();
+        if (!privkey) EC_KEY_free(ec_key);
+        goto cleanup;
+    }
+
+    // Create KEM context
+    kem_ctx = EVP_PKEY_CTX_new_from_pkey(NULL, privkey, "provider=default");
+    if (!kem_ctx) {
+        handle_openssl_error();
+        goto cleanup;
+    }
+
+    // Initialize decapsulation
     OSSL_PARAM params[] = {
         OSSL_PARAM_utf8_string(OSSL_KEM_PARAM_OPERATION, "DHKEM", 0),
         OSSL_PARAM_END
     };
 
-    // Create KEM context for decapsulation
-    EVP_PKEY_CTX *dec_ctx = EVP_PKEY_CTX_new_from_pkey(NULL, privkey, "provider=default");
-    if (!dec_ctx || EVP_PKEY_decapsulate_init(dec_ctx, params) <= 0) {
-        EVP_PKEY_free(privkey);
-        EVP_PKEY_CTX_free(ctx);
-        OSSL_PROVIDER_unload(defprov);
-        return -1;
+    if (EVP_PKEY_decapsulate_init(kem_ctx, params) <= 0) {
+        handle_openssl_error();
+        goto cleanup;
     }
 
     // Perform decapsulation
-    size_t ss_len = 32; // Shared secret size
-    if (EVP_PKEY_decapsulate(dec_ctx, ss, &ss_len, ct, 65) <= 0) {
-        EVP_PKEY_CTX_free(dec_ctx);
-        EVP_PKEY_free(privkey);
-        EVP_PKEY_CTX_free(ctx);
-        OSSL_PROVIDER_unload(defprov);
-        return -1;
+    size_t ss_len = PQCRYPT_CRYPTO_BYTES;
+    if (EVP_PKEY_decapsulate(kem_ctx, ss, &ss_len, ct, PQCRYPT_CRYPTO_CIPHERTEXTBYTES) <= 0) {
+        handle_openssl_error();
+        goto cleanup;
     }
 
-    EVP_PKEY_CTX_free(dec_ctx);
-    EVP_PKEY_free(privkey);
-    EVP_PKEY_CTX_free(ctx);
-    OSSL_PROVIDER_unload(defprov);
-    return 0;
+    ret = 0;
+
+cleanup:
+    if (ret != 0) {
+        ERR_print_errors_fp(stderr);
+    }
+    if (kem_ctx) EVP_PKEY_CTX_free(kem_ctx);
+    if (privkey) EVP_PKEY_free(privkey);
+    if (priv_bn) BN_free(priv_bn);
+    if (kem) EVP_KEM_free(kem);
+    if (defprov) OSSL_PROVIDER_unload(defprov);
+    return ret;
 }

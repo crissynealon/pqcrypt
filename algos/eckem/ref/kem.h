@@ -3,7 +3,7 @@
 
 #define PQCRYPT_CRYPTO_SECRETKEYBYTES 32
 #define PQCRYPT_CRYPTO_PUBLICKEYBYTES 65
-#define PQCRYPT_CRYPTO_BYTES 32
+#define PQCRYPT_CRYPTO_BYTES 33
 #define PQCRYPT_CRYPTO_CIPHERTEXTBYTES 65
 
 int PQCRYPT_crypto_eckem_keypair(unsigned char *pk, unsigned char *sk);
