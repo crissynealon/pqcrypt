@@ -1,10 +1,18 @@
 # pqcrypt
 post-quantum cryptography
 
+## Tips
+The encrypt/decrypt result is wrong
+```cpp
+dhkem
+mceliece*
+ntruhps*
+```
+
 ## Deps
 
 ```shell
-sudo apt-get install lib25519-1 lib25519-dev libssl-dev
+sudo apt-get install lib25519-1 lib25519-dev libssl-dev libsodium ...
 ```
 
 libsodium 1.0.20
@@ -79,12 +87,7 @@ All the `keygen`, `encaps`, `decaps`, `encrypt` and `decrypt` all call from {alg
 ## Support algorithms
 ### post quantum algorithms
 firesaber  
-frodokem1344aes  
-frodokem1344shake  
-frodokem640aes  
-frodokem640shake  
-frodokem976aes  
-frodokem976shake  
+
 kyber1024  
 kyber1024_90s  
 kyber512  
@@ -105,7 +108,7 @@ mceliece8192128f
 ntruhps2048509  
 ntruhps2048677  
 ntruhps4096821  
-ntruhrss701  
+
 saber  
 sntrup761_clean from liboqs  
 hqc128  
@@ -116,12 +119,19 @@ mlkem768
 mlkem1024  
 
 ### common algorithms
-rsa  
-dh  
-ecsda  
+rsakem  
+dhkem(x25519)  
+eckem  
 
 ## Will support in the future
 bike  
+frodokem1344aes  
+frodokem1344shake  
+frodokem640aes  
+frodokem640shake  
+frodokem976aes  
+frodokem976shake  
+ntruhrss701  
 
 
 ## Migrate your own algorithm
