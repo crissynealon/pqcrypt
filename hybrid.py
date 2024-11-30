@@ -38,9 +38,13 @@ KEMS = {
     "mlkem512": "from pqcrypt.kem.mlkem512 import generate_keypair, encrypt, decrypt",
     "mlkem768": "from pqcrypt.kem.mlkem768 import generate_keypair, encrypt, decrypt",
     "mlkem1024": "from pqcrypt.kem.mlkem1024 import generate_keypair, encrypt, decrypt",
-    # "dhkem": "from pqcrypt.kem.dhkem import generate_keypair, encrypt, decrypt",
     "xwing": "from pqcrypt.kem.xwing import generate_keypair, encrypt, decrypt",
     "sntryp761": "from pqcrypt.kem.sntryp761 import generate_keypair, encrypt, decrypt",
+    "tm": "from pqcrypt.kem.sntryp761 import generate_keypair, encrypt, decrypt",
+
+    # "dhkem": "from pqcrypt.kem.dhkem import generate_keypair, encrypt, decrypt",
+    # "rsakem": "from pqcrypt.kem.rsakem import generate_keypair, encrypt, decrypt"
+    # "ecsdakem": "from pqcrypt.kem.rsakem import generate_keypair, encrypt, decrypt"
 }
 
 @pytest.mark.parametrize("kem", KEMS.keys())
