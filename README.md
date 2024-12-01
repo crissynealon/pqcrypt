@@ -5,8 +5,14 @@ post-quantum cryptography
 The encrypt/decrypt result is wrong
 ```cpp
 dhkem
-mceliece*
+mceliece*/mceliece_clean*
 ntruhps*
+```
+The algorithm not implemented
+```cpp
+bike
+ntruhrss701  
+frodokem* 
 ```
 
 ## Deps

@@ -906,9 +906,9 @@ def main():
 
 if __name__ == "__main__":
     ## common
-    dhkem()
+    # dhkem()
     # rsakem()
-    # eckem()
+    eckem()
     # x25519kem()
     # x448kem()
 
