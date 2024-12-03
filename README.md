@@ -5,7 +5,6 @@ post-quantum cryptography
 The encrypt/decrypt result is wrong
 ```cpp
 dhkem
-mceliece*/mceliece_clean*
 ntruhps*
 ```
 The algorithm not implemented

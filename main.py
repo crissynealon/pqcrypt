@@ -508,24 +508,26 @@ def mceliece348864_clean():
 
     print('mceliece348864')
     pk, sk = mceliece348864.keygen()
-    # print("pk", hexlify(pk))
-    # print("sk", hexlify(sk))
+    #print("pk", hexlify(pk))
+    #print("sk", hexlify(sk))
 
     ct, ss = mceliece348864.encaps(pk)
-    print("ss", hexlify(ss))
+    #print("ss", hexlify(ss))
 
     ss0 = mceliece348864.decaps(sk, ct)
-    print("ss0", hexlify(ss0))
+    #print("ss0", hexlify(ss0))
 
     assert(ss0 == ss)
 
     print("PLAINTEXT_SIZE: ", mceliece348864.PLAINTEXT_SIZE)
+    # ciphertext = mceliece348864.encrypt(b'a'*mceliece348864.PLAINTEXT_SIZE, pk, random=True)
 
-    ciphertext = mceliece348864.encrypt(b'a'*mceliece348864.PLAINTEXT_SIZE, pk)
-    print("cipher", hexlify(ciphertext))
+    ciphertext, pt = mceliece348864.encrypt(b'a'*mceliece348864.PLAINTEXT_SIZE, pk, random=True)
+    print("pt", hexlify(pt))
+    pt0 = mceliece348864.decrypt(ciphertext, sk)
+    print("pt0", hexlify(pt0))
 
-    plaintext = mceliece348864.decrypt(ciphertext, sk)
-    print("plain", hexlify(plaintext))
+    assert(pt0 == pt)
 
 def mceliece348864f_clean():
     import pqcrypt.kem.mceliece348864_clean as mceliece348864f
@@ -908,7 +910,7 @@ if __name__ == "__main__":
     ## common
     # dhkem()
     # rsakem()
-    eckem()
+    # eckem()
     # x25519kem()
     # x448kem()
 
@@ -945,7 +947,7 @@ if __name__ == "__main__":
     # mceliece6960119f()
     # mceliece8192128()
     # mceliece8192128f()
-    # mceliece348864_clean()
+    mceliece348864_clean()
     # mceliece348864f_clean()
     # mceliece460896_clean()
     # mceliece460896f_clean()
