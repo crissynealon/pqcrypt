@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "crypto_declassify.h"
 #include "crypto_uint16.h"
@@ -19,7 +20,6 @@
 
 /* include last because of conflict with unistd.h encrypt function */
 #include "encrypt.h"
-#include "pqcrypt.h"
 
 static inline crypto_uint16 uint16_is_smaller_declassify(uint16_t t, uint16_t u) {
     crypto_uint16 mask = crypto_uint16_smaller_mask(t, u);
@@ -111,7 +111,7 @@ static void gen_e(unsigned char *e) {
 
 /* input: public key pk, error vector e */
 /* output: syndrome s */
-static void syndrome(unsigned char *s, const unsigned char *pk, const unsigned char *e) {
+void syndrome(unsigned char *s, const unsigned char *pk, const unsigned char *e) {
     unsigned char b, row[SYS_N / 8];
     const unsigned char *pk_ptr = pk;
 
@@ -148,14 +148,8 @@ static void syndrome(unsigned char *s, const unsigned char *pk, const unsigned c
     }
 }
 
+
 void encrypt(unsigned char *s, const unsigned char *pk, unsigned char *e) {
     gen_e(e);
-
     syndrome(s, pk, e);
-}
-
-int PQCRYPT_mceliece348864_encrypt(uint8_t *ct, const uint8_t *pt, const uint8_t *pk) {
-    syndrome(ct, pk, pt);
-
-    return 0;  // Return 0 to indicate success
 }

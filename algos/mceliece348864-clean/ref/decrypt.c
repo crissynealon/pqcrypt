@@ -89,9 +89,3 @@ int decrypt(unsigned char *e, const unsigned char *sk, const unsigned char *c) {
 
     return check ^ 1;
 }
-
-int PQCRYPT_mceliece348864_decrypt(uint8_t *pt, const uint8_t *ct, const uint8_t *sk) {
-    // Call the core decryption function
-    decrypt(pt, ct, sk);
-    return 0;  // Success
-}

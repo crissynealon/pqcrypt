@@ -20,9 +20,10 @@
 #define CFFI_CRYPTO_CIPHERTEXTBYTES PQCLEAN_MCELIECE348864_CLEAN_CRYPTO_CIPHERTEXTBYTES
 #define CFFI_CRYPTO_PUBLICKEYBYTES  PQCLEAN_MCELIECE348864_CLEAN_CRYPTO_PUBLICKEYBYTES
 #define CFFI_CRYPTO_SECRETKEYBYTES  PQCLEAN_MCELIECE348864_CLEAN_CRYPTO_SECRETKEYBYTES
-#define CFFI_CRYPTO_PLAINTEXTBYTES  SYS_N
+#define CFFI_CRYPTO_PLAINTEXTBYTES  SYS_N/8
 
-int PQCRYPT_mceliece348864_encrypt(uint8_t *ct, const uint8_t *pt, const uint8_t *pk);
+// pt is random error vector, so the type is uint8_t
+int PQCRYPT_mceliece348864_encrypt(uint8_t *ct, uint8_t *pt, const uint8_t *pk);
 int PQCRYPT_mceliece348864_decrypt(uint8_t *pt, const uint8_t *ct, const uint8_t *sk);
 
 #endif
