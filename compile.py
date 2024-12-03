@@ -59,7 +59,7 @@ def create_algorithm_ffi(name, algorithm):
         # CFLAGS=-O3 -Wall -Wextra -Wpedantic -Wshadow -Wvla -Werror -Wredundant-decls -Wmissing-prototypes -std=c99
         compiler_args +=["-O3", "-g",
                         # "-std=c99",
-                        "-nostdinc++",
+                        # "-nostdinc++",
                         # "-stdlib=libstdc++",
                         "-Wall",
                         "-Wextra",
@@ -69,9 +69,9 @@ def create_algorithm_ffi(name, algorithm):
                         "-Wmissing-prototypes",
                         "-Wl,--no-as-needed",
                         "-Wunused-result",
-                        "-DOPENSSL_API_COMPAT=0x30000000L",
+                        # "-DOPENSSL_API_COMPAT=0x30000000L",
                         # "-DNIST_RAND=1",
-                        "-Wl,-rpath=/usr/local/lib64"
+                        # "-Wl,-rpath=/usr/local/lib64"
                         ]
     elif IS_MACOS:
         raise SystemExit("MacOS have not implemented yet!")
@@ -155,6 +155,7 @@ def create_algorithm_ffi(name, algorithm):
         # compiler_args.append('-fpermissive')
 
     print(header)
+    # import ipdb; ipdb.set_trace();
     # HACKME: Only support POSIX pure C implementation
     ffi.set_source(
         f"pqcrypt._kem.{name}",
@@ -165,7 +166,7 @@ def create_algorithm_ffi(name, algorithm):
         extra_link_args=["-Wl,--no-as-needed"],
         # extra_link_args=link_args,
         libraries=libraries,
-        library_dirs=["/usr/local/lib", "/lib/x86_64-linux-gnu/"],
+        # library_dirs=["/usr/local/lib", "/lib/x86_64-linux-gnu/"],
         source_extension='.c'
     )
 

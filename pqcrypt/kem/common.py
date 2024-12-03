@@ -69,29 +69,36 @@ def _kem_decaps_factory(ffi, lib, use_threadpool=False):
 
     return _run_in_threadpool(decaps) if use_threadpool else decaps
 
-
 def _kem_encrypt_factory(ffi, lib, use_threadpool=False):
-    def encrypt(plaintext, public_key):
+    # FIXME: add random bool for controling some other exceptions
+    def encrypt(plaintext, public_key, random=False):
+        ciphertext_buf = ffi.new("uint8_t [{}]".format(lib.CFFI_CRYPTO_CIPHERTEXTBYTES))
+
         if not isinstance(public_key, bytes):
             raise TypeError("'public_key' must be of type 'bytes'")
 
         if len(public_key) != lib.CFFI_CRYPTO_PUBLICKEYBYTES:
-            raise ValueError(f"'public_key' must be of length '{ lib.CFFI_CRYPTO_PUBLICKEYBYTES }'")
+                raise ValueError(f"'public_key' must be of length '{ lib.CFFI_CRYPTO_PUBLICKEYBYTES }'")
 
         if not isinstance(plaintext, bytes):
             raise TypeError("'plaintext' must be of type 'bytes'")
 
-        if len(plaintext) != lib.CFFI_CRYPTO_PLAINTEXTBYTES:
-            raise ValueError(f"'plaintext' now only support be length '{ lib.CFFI_CRYPTO_PLAINTEXTBYTES }'")
-
-        ciphertext_buf = ffi.new("uint8_t [{}]".format(lib.CFFI_CRYPTO_CIPHERTEXTBYTES))
-
-        if 0 != lib.cffi_crypto_encrypt(ciphertext_buf, plaintext, public_key):
-            raise RuntimeError("KEM encrypt failed")
+        if random:
+            plaintext_buf = ffi.new("uint8_t [{}]".format(lib.CFFI_CRYPTO_PLAINTEXTBYTES))
+            if 0 != lib.cffi_crypto_encrypt(ciphertext_buf, plaintext_buf, public_key):
+                raise RuntimeError("KEM encrypt failed")
+        else:
+            if len(plaintext) != lib.CFFI_CRYPTO_PLAINTEXTBYTES:
+                raise ValueError(f"'plaintext' now only support be length '{ lib.CFFI_CRYPTO_PLAINTEXTBYTES }'")
+            if 0 != lib.cffi_crypto_encrypt(ciphertext_buf, plaintext, public_key):
+                raise RuntimeError("KEM encrypt failed")
 
         ciphertext = bytes(ffi.buffer(ciphertext_buf, lib.CFFI_CRYPTO_CIPHERTEXTBYTES))
-
-        return ciphertext
+        if random:
+            plaintext = bytes(ffi.buffer(plaintext_buf, lib.CFFI_CRYPTO_PLAINTEXTBYTES))
+            return ciphertext, plaintext
+        else:
+            return ciphertext
 
     return _run_in_threadpool(encrypt) if use_threadpool else encrypt
 

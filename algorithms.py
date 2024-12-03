@@ -19,7 +19,7 @@ class AlgorithmConfig:
     is_cpp: bool = False
     is_common: bool = True
     is_debug: bool = True
-    is_other_include: bool = True
+    is_other_include: bool = False
     extra_header: Optional[str] = None
     extra_sources: List[str] = field(default_factory=list)
     extra_include_dirs: List[str] = field(default_factory=list)
@@ -53,7 +53,7 @@ ALGORITHMS = {
     "kyber768_90s": AlgorithmConfig(path = "kyber768-90s"),
     "lightsaber": AlgorithmConfig(path = "lightsaber"),
     "mceliece348864": AlgorithmConfig(path = "mceliece348864"),
-    "mceliece348864_clean": AlgorithmConfig(path = "mceliece348864-clean"),
+    "mceliece348864_clean": AlgorithmConfig(path = "mceliece348864-clean", is_common=True),
     "mceliece348864f": AlgorithmConfig(path = "mceliece348864f"),
     "mceliece348864f_clean": AlgorithmConfig(path = "mceliece348864f-clean"),
     "mceliece460896": AlgorithmConfig(path = "mceliece460896"),
@@ -65,7 +65,7 @@ ALGORITHMS = {
     "mceliece6688128f": AlgorithmConfig(path = "mceliece6688128f"),
     "mceliece6688128f_clean": AlgorithmConfig(path = "mceliece6688128f-clean"),
     "mceliece6960119": AlgorithmConfig(path = "mceliece6960119"),
-    "mceliece6960119_clean": AlgorithmConfig(path = "mceliece6960119-clean"),
+    "mceliece6960119_clean": AlgorithmConfig(path = "mceliece6960119-clean", is_common=True),
     "mceliece6960119f": AlgorithmConfig(path = "mceliece6960119f"),
     "mceliece6960119f_clean": AlgorithmConfig(path = "mceliece6960119f-clean"),
     "mceliece8192128": AlgorithmConfig(path = "mceliece8192128"),
